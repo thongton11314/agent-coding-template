@@ -6,18 +6,18 @@ A reusable template for AI-assisted development. The AI maintains a persistent w
 
 ### Option A: New Project (GitHub Template)
 
-Click **"Use this template"** on the [GitHub repo](https://github.com/YOUR_USERNAME/agent-coding-template) → creates a new repo with the framework pre-loaded.
+Click **"Use this template"** on the [GitHub repo](https://github.com/thongton11314/agent-coding-template) → creates a new repo with the framework pre-loaded.
 
 ### Option B: Existing Project (Setup Script)
 
 **Linux / macOS:**
 ```bash
-curl -sL https://raw.githubusercontent.com/YOUR_USERNAME/agent-coding-template/main/scripts/setup.sh | bash
+curl -sL https://raw.githubusercontent.com/thongton11314/agent-coding-template/main/scripts/setup.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/YOUR_USERNAME/agent-coding-template/main/scripts/setup.ps1 | iex
+irm https://raw.githubusercontent.com/thongton11314/agent-coding-template/main/scripts/setup.ps1 | iex
 ```
 
 The script creates all directories and files, skipping any that already exist in your project.
@@ -26,7 +26,7 @@ The script creates all directories and files, skipping any that already exist in
 
 In any AI chat inside your project, say:
 
-> "Clone github.com/YOUR_USERNAME/agent-coding-template and run `scripts/setup.ps1` (or `setup.sh`) to install the AI development framework into this project."
+> "Clone github.com/thongton11314/agent-coding-template and run `scripts/setup.ps1` (or `setup.sh`) to install the AI development framework into this project."
 
 The AI runs the setup script → framework is installed → AI reads `AGENTS.md` → ready.
 
