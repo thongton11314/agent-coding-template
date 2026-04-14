@@ -34,6 +34,8 @@ $Dirs = @(
     "wiki\decisions"
     "wiki\conventions"
     "wiki\modules"
+    "wiki\test-results"
+    "wiki\test-results\screenshots"
     "scripts"
     ".github"
 )
@@ -50,7 +52,9 @@ $Files = @(
     "wiki\log.md"
     "wiki\overview.md"
     "raw\README.md"
+    "framework-template.md"
     "scripts\validate-wiki.ps1"
+    "scripts\validate-wiki.sh"
 )
 
 # Create directories

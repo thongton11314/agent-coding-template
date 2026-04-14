@@ -77,6 +77,46 @@ flowchart TD
 
 The wiki compounds over time. Every source ingested and every code change enriches it.
 
+## Multi-Agent Orchestration Template
+
+The framework includes `framework-template.md` — a reusable specification template for building applications with a multi-agent pipeline. Eight specialized AI agents collaborate through 8 sequential phases:
+
+| Phase | Name | Lead Agent |
+|-------|------|-----------|
+| 1 | Product and Scope | Product Strategist |
+| 2 | UX and Design | UX/UI Designer |
+| 3 | Technical Architecture | Solution Architect |
+| 4 | Data and Integration | Data/API Integration Designer |
+| 5 | Security, Quality, and Ops | QA/Test Engineer |
+| 6 | Roadmap and Planning | Product Strategist |
+| 7 | Implementation and Validation | Full-Stack Engineer |
+| 8 | Documentation and README | Full-Stack Engineer |
+
+### How to Use the Template
+
+1. Copy `framework-template.md` → rename for your project (e.g. `my-app-spec.md`)
+2. Replace all `{PLACEHOLDER}` tokens with your project-specific values
+3. Fill in `[CUSTOMIZE]` sections — leave `[FRAMEWORK]` sections as-is
+4. Place the completed spec in `raw/` (e.g. `raw/prompt.md`)
+5. Tell your AI: *"Read `raw/prompt.md` and start Phase 1"*
+
+The agents produce all deliverables as wiki artifacts, building a living specification that drives implementation in Phase 7.
+
+### The Eight Agents
+
+| # | Agent | Responsibility |
+|---|-------|---------------|
+| 0 | Orchestrator | Coordinates agents, enforces phase gates, resolves conflicts |
+| 1 | Product Strategist | Scope, priorities, tradeoffs, roadmap, risk |
+| 2 | UX/UI Designer | Layouts, flows, states, accessibility, design system |
+| 3 | Solution Architect | System design, APIs, security, tech stack (scored matrix) |
+| 4 | Full-Stack Engineer | Code implementation per wiki specs |
+| 5 | Data/API Integration | External APIs, domain calculations, data processing |
+| 6 | QA/Test Engineer | Test strategy, security model, release readiness |
+| 7 | Visual Test Agent | Browser-based visual testing via Playwright |
+
+Each phase has **quality gates** and **cross-agent reviews** — no phase starts until the prior one passes.
+
 ## Structure
 
 ```
@@ -94,6 +134,7 @@ wiki/                 # AI-maintained pages (don't edit manually)
   log.md              # Chronological operation record
   overview.md         # High-level synthesis
 AGENTS.md             # Schema — the single source of truth
+framework-template.md # Multi-agent orchestration template
 scripts/              # Validation and maintenance tools
 ```
 

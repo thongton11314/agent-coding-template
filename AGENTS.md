@@ -16,6 +16,14 @@ This framework provides **persistent context** for AI-assisted development. It c
 
 ---
 
+## Terminology
+
+- **Workflows** (1–9) — operational procedures for managing knowledge and code (ingest, query, lint, etc.). Defined in this file.
+- **Phases** (1–8) — sequential application delivery steps in the multi-agent pipeline. Defined in `framework-template.md`.
+- **Agents** (0–7) — eight specialized AI entities that execute phases. Defined in `framework-template.md`.
+
+---
+
 ## Directory Structure
 
 ```
@@ -34,6 +42,7 @@ wiki/                 # AI-maintained pages — never edit manually
   log.md              # Chronological record of all operations
   overview.md         # High-level synthesis (knowledge + system state)
 AGENTS.md             # This file — schema and conventions
+framework-template.md # Multi-agent orchestration template for new projects
 ```
 
 ---
@@ -173,9 +182,24 @@ When a design or architecture decision is made:
 3. **Update** `wiki/index.md`.
 4. **Append** to `wiki/log.md`.
 
+### Orchestration Workflows
+
+#### 8. Use the Orchestration Template
+
+When the user wants to build a new application using the multi-agent pipeline:
+
+1. **Copy** `framework-template.md` and rename it for the project (e.g. `my-app-spec.md`).
+2. **Replace** all `{PLACEHOLDER}` tokens with project-specific values.
+3. **Fill in** `[CUSTOMIZE]` sections with domain-specific content.
+4. **Leave** `[FRAMEWORK]` sections as-is — they work for any project.
+5. **Place** the completed spec in `raw/` as an immutable source (e.g. `raw/prompt.md`).
+6. **Start** Phase 1 — the Orchestrator agent reads the spec and activates the Product Strategist.
+
+The template defines 8 agents and 8 phases. See `wiki/concepts/multi-agent-orchestration.md` and `wiki/concepts/phased-development-pipeline.md` for details.
+
 ### Maintenance Workflows
 
-#### 8. Lint / Health Check
+#### 9. Lint / Health Check
 
 When the user asks to lint or review the wiki:
 

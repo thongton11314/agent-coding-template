@@ -9,3 +9,6 @@ Read `AGENTS.md` in full before every session. It contains the complete schema, 
 6. Use `[[wikilinks]]` for cross-references.
 7. Flag contradictions with `> [!contradiction]` — never silently overwrite.
 8. Flag breaking changes with `> [!breaking]` callouts.
+9. New modules → register in `wiki/modules/` and update architecture pages.
+10. Non-trivial design choices → record in `wiki/decisions/` as an ADR.
+11. Discuss before ingesting — present key takeaways and wait for user confirmation.

@@ -159,6 +159,31 @@ function Check-IndexCoverage {
     return $issues
 }
 
+function Check-RelatedField {
+    param($Pages)
+    $issues = @()
+    $allStems = [System.Collections.Generic.HashSet[string]]::new()
+    $Pages.Keys | ForEach-Object { [void]$allStems.Add($_) }
+
+    foreach ($entry in $Pages.GetEnumerator()) {
+        $parsed = Parse-Frontmatter $entry.Value
+        if ($null -eq $parsed.Frontmatter -or -not $parsed.Frontmatter.ContainsKey("related")) { continue }
+        $relatedRaw = $parsed.Frontmatter["related"]
+        # Parse YAML array: [item1, item2]
+        if ($relatedRaw -match '^\[(.+)\]$') {
+            $items = $Matches[1] -split ',\s*'
+            foreach ($item in $items) {
+                $item = $item.Trim()
+                if ($item -and -not $allStems.Contains($item)) {
+                    $rel = Get-RelativePath $entry.Value
+                    $issues += "  BROKEN related '$item' in $rel (page not found)"
+                }
+            }
+        }
+    }
+    return $issues
+}
+
 # --- Main ---
 
 $pages = Get-WikiPages
@@ -168,6 +193,7 @@ $checks = @(
     @{ Name = "Frontmatter";     Fn = { Check-Frontmatter $pages } }
     @{ Name = "Filenames";       Fn = { Check-Filenames $pages } }
     @{ Name = "Wikilinks";       Fn = { Check-Wikilinks $pages } }
+    @{ Name = "Related Fields";  Fn = { Check-RelatedField $pages } }
     @{ Name = "Orphans";         Fn = { Check-Orphans $pages } }
     @{ Name = "Index Coverage";  Fn = { Check-IndexCoverage $pages } }
 )

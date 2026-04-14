@@ -5,6 +5,7 @@ This is an **LLM Wiki** — a personal knowledge base maintained by an LLM agent
 
 ## Key Files
 - `AGENTS.md` — Full schema, conventions, and workflows. **Read this first on every session.**
+- `framework-template.md` — Multi-agent orchestration template for building applications.
 - `wiki/index.md` — Master catalog of all wiki pages.
 - `wiki/log.md` — Chronological operation log.
 - `wiki/overview.md` — High-level synthesis.
@@ -22,6 +23,7 @@ This is an **LLM Wiki** — a personal knowledge base maintained by an LLM agent
 - **Query**: Agent reads `wiki/index.md` → finds relevant pages → synthesizes answer.
 - **Lint**: Agent scans for orphans, broken links, stale claims → reports → fixes with approval.
 - **Analysis**: Agent gathers pages → generates analysis in `wiki/analyses/` → updates index.
+- **Orchestration**: Copy `framework-template.md` → fill in placeholders → place in `raw/` → run 8-phase pipeline.
 
 ## Code-Aware Rules
 7. **Before any code change** — read relevant wiki pages (modules, conventions, decisions, architecture) to stay consistent.

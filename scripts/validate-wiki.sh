@@ -200,6 +200,29 @@ check_index_coverage() {
     return $issues
 }
 
+# --- Check: Related Fields ---
+check_related_fields() {
+    local issues=0
+    for stem in "${!PAGES[@]}"; do
+        local file="${PAGES[$stem]}"
+        local related_raw
+        related_raw="$(get_fm_field "$file" "related")"
+        if [ -z "$related_raw" ]; then continue; fi
+        # Strip brackets and split by comma
+        related_raw="${related_raw#[}"
+        related_raw="${related_raw%]}"
+        IFS=',' read -ra items <<< "$related_raw"
+        for item in "${items[@]}"; do
+            item="$(echo "$item" | xargs)"  # trim whitespace
+            if [ -n "$item" ] && [ -z "${PAGES[$item]+x}" ]; then
+                echo "  BROKEN related '$item' in $(rel_path "$file") (page not found)"
+                issues=$((issues + 1))
+            fi
+        done
+    done
+    return $issues
+}
+
 # --- Run checks ---
 run_check() {
     local name="$1" fn="$2"
@@ -221,6 +244,7 @@ run_check() {
 run_check "Frontmatter" check_frontmatter
 run_check "Filenames" check_filenames
 run_check "Wikilinks" check_wikilinks
+run_check "Related Fields" check_related_fields
 run_check "Orphans" check_orphans
 run_check "Index Coverage" check_index_coverage
 
