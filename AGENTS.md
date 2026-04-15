@@ -38,6 +38,7 @@ wiki/                 # AI-maintained pages — never edit manually
   decisions/          # Architecture Decision Records (ADRs)
   conventions/        # Coding standards, naming rules, project patterns
   modules/            # One page per module/component/service
+  deviations.md       # Audit trail of spec-vs-code divergences
   index.md            # Master catalog of all wiki pages
   log.md              # Chronological record of all operations
   overview.md         # High-level synthesis (knowledge + system state)
@@ -62,7 +63,7 @@ updated: YYYY-MM-DD
 tags: [tag1, tag2]
 sources: []           # raw documents this page draws from
 related: []           # related wiki pages (wikilink targets)
-status: active | draft | deprecated | superseded
+status: active | draft | deprecated | superseded | spec | verified
 ---
 ```
 
@@ -152,6 +153,7 @@ After completing a code create/update/delete operation:
 5. **Flag contradictions** — if the change conflicts with documented patterns, add `> [!breaking]` callouts on affected pages.
 6. **Update** `wiki/index.md` for any new or modified pages.
 7. **Append** to `wiki/log.md`.
+8. **Run the Sync Gate** (Workflow 10) before marking the change complete.
 
 #### 6. Register a Module
 
@@ -215,6 +217,55 @@ When the user asks to lint or review the wiki:
 2. **Report** findings as a checklist.
 3. **Fix** issues with user approval.
 4. **Append** to `wiki/log.md`.
+
+#### 10. Sync Gate (Bidirectional Verification)
+
+Required after every code change, before marking the change complete. This ensures code and wiki stay in sync in **both directions**.
+
+##### Step 1 — Code-Wiki Mapping Table
+
+Output a visible table listing every file touched:
+
+```markdown
+| Change | Type | Wiki Page Updated | Verified |
+|--------|------|-------------------|----------|
+| (every file created/modified/deleted) | create/modify/delete | (wiki page) | ✅/❌ |
+```
+
+Rules:
+- Every row must map to a wiki page. If none exists, create one or update an existing one.
+- The table must be shown to the user. Do not skip it.
+
+##### Step 2 — Pass 1: Code → Wiki (every code artifact has documentation)
+
+- List every file created, modified, or deleted in the change.
+- For each, confirm it appears in the relevant wiki module page's directory listing.
+- For each new route/endpoint, confirm it appears in the architecture routes page.
+- For each new nav item, confirm it appears in the information architecture page.
+
+##### Step 3 — Pass 2: Wiki → Code (every wiki claim is true)
+
+- Read the directory listings in affected wiki module pages.
+- Verify every listed file actually exists. If not: remove it or mark `(planned — not yet implemented)`.
+- Verify route tables match registered routes.
+- Verify navigation/sitemap matches actual routing config.
+
+##### Output
+
+A pass/fail summary for each direction. Both must pass before the change is considered complete.
+
+##### Deviation Protocol
+
+When implementation differs from spec:
+
+1. Add `> [!note] Deviation from Phase N spec: {description}` on the affected wiki page.
+2. Update the directory listing to reflect reality, not aspiration.
+3. Append an entry to `wiki/deviations.md`:
+
+```markdown
+| Date | Wiki Page | Spec Claim | Actual Implementation | Reason |
+|------|-----------|------------|----------------------|--------|
+```
 
 ---
 

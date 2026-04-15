@@ -14,3 +14,5 @@ Read `AGENTS.md` in full before every session. It contains the complete schema, 
 9. New modules → register in `wiki/modules/` and update architecture pages.
 10. Non-trivial design choices → record in `wiki/decisions/` as an ADR.
 11. Discuss before ingesting — present key takeaways and wait for user confirmation.
+12. After any code change — run the Sync Gate (Workflow 10): output a Code-Wiki Mapping Table, then verify bidirectionally (code → wiki and wiki → code). Both passes must succeed.
+13. Spec-vs-code divergences → log in `wiki/deviations.md` and add `> [!note] Deviation:` callouts on affected pages.

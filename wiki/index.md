@@ -2,7 +2,7 @@
 title: "Wiki Index"
 type: overview
 created: 2026-04-13
-updated: 2026-04-14
+updated: 2026-04-15
 tags: [index, navigation]
 sources: []
 status: active
@@ -66,3 +66,8 @@ Master catalog of all pages in this wiki. Updated on every operation.
 | Page | Summary | Scope | Updated |
 |------|---------|-------|---------|
 | *No conventions documented yet.* | | | |
+## Maintenance
+
+| Page | Summary | Updated |
+|------|---------|--------|
+| [[deviations]] | Audit trail of spec-vs-code divergences (Sync Gate Workflow 10) | 2026-04-15 |
