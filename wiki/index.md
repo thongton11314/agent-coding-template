@@ -59,13 +59,14 @@ Master catalog of all pages in this wiki. Updated on every operation.
 
 | Page | Summary | Status | Updated |
 |------|---------|--------|---------|
-| *No decisions recorded yet.* | | | |
+| [[registry]] | ADR number registry — prevents duplicate ADR numbers | active | 2026-04-15 |
 
 ## Conventions
 
 | Page | Summary | Scope | Updated |
 |------|---------|-------|---------|
-| *No conventions documented yet.* | | | |
+| [[coding-conventions]] | Stub — fill in language, style, error handling, logging conventions | codebase-wide | 2026-04-15 |
+| [[testing-conventions]] | Stub — fill in test runner, naming, fixture patterns, coverage target | codebase-wide | 2026-04-15 |
 ## Maintenance
 
 | Page | Summary | Updated |

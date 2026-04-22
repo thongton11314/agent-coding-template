@@ -18,9 +18,12 @@ This framework provides **persistent context** for AI-assisted development. It c
 
 ## Terminology
 
-- **Workflows** (1–9) — operational procedures for managing knowledge and code (ingest, query, lint, etc.). Defined in this file.
+- **Workflows** (1–11) — operational procedures for managing knowledge and code (ingest, query, lint, etc.). Defined in this file.
 - **Phases** (1–8) — sequential application delivery steps in the multi-agent pipeline. Defined in `framework-template.md`.
 - **Agents** (0–7) — eight specialized AI entities that execute phases. Defined in `framework-template.md`.
+- **Post-Change Pipeline** — the mandatory 5-step sequence (wiki → sync gate → tests → README → commit) that runs after every code change.
+- **Sync Gate** — Workflow 10: bidirectional code↔wiki verification with a Code-Wiki Mapping Table.
+- **Brownfield** — adoption of the framework on an already-running codebase (Workflow 11).
 
 ---
 
@@ -199,6 +202,59 @@ When the user wants to build a new application using the multi-agent pipeline:
 
 The template defines 8 agents and 8 phases. See `wiki/concepts/multi-agent-orchestration.md` and `wiki/concepts/phased-development-pipeline.md` for details.
 
+### Development Discipline Protocols
+
+#### Post-Change Pipeline (mandatory after every code change)
+
+After completing any code create/update/delete, execute all 5 steps in order.
+No step may be skipped, even for "small" changes.
+
+**Step 1 — Update the Wiki**
+- Update every affected module page in `wiki/modules/`.
+- Update `wiki/architecture/` if system design or data flows changed.
+- Create an ADR in `wiki/decisions/` for any non-trivial design choice.
+- Add `> [!breaking]` callouts on pages affected by breaking changes.
+- Always append to `wiki/log.md`. Always update `wiki/index.md`.
+
+**Step 2 — Sync Gate**
+Run Workflow 10. Both passes must succeed before proceeding.
+
+**Step 3 — Run Tests**
+- Run the project's full test suite.
+- Report pass/fail. On failure, fix code (not tests) and re-run before continuing.
+- For UI changes, rebuild the frontend bundle first.
+
+**Step 4 — Update README.md**
+- If the change affects the architecture diagram, Quick Start steps, API surface,
+  environment variables, or configuration — update `README.md` accordingly.
+
+**Step 5 — Commit and Push**
+- Stage all changed files: code + wiki + tests.
+- Write a structured commit message:
+  ```
+  <type>: <summary>
+
+  - <file>: <what changed and why>
+  - wiki/<page>: <what was updated>
+  ```
+  Types: `feat` | `fix` | `refactor` | `test` | `wiki` | `chore`
+- Push to the current branch and confirm the remote SHA.
+
+#### Dependency Impact Protocol
+
+When modifying any module:
+1. Search for all importers of that module.
+2. Check if the public interface changed (signatures, return shapes, exports).
+3. If yes — update every caller and their wiki module pages.
+4. If a breaking change — add `> [!breaking]` callouts on all affected wiki pages.
+
+#### Configuration Change Protocol
+
+When project configuration files change (model config, environment variables, API keys):
+1. Update every wiki page that names or describes the changed values.
+2. Propagate to architecture pages, module pages, and README where applicable.
+3. Register any spec-vs-code gap in `wiki/deviations.md`.
+
 ### Maintenance Workflows
 
 #### 9. Lint / Health Check
@@ -266,6 +322,21 @@ When implementation differs from spec:
 | Date | Wiki Page | Spec Claim | Actual Implementation | Reason |
 |------|-----------|------------|----------------------|--------|
 ```
+
+#### 11. Brownfield Onboarding
+
+When adopting the framework on an already-running codebase (skip Phases 1–6):
+
+1. **Run lint** (Workflow 9) to discover what wiki coverage is missing.
+2. **Back-fill module pages** (`wiki/modules/`) — one page per existing module/service/component, written from the live code.
+3. **Back-fill architecture pages** (`wiki/architecture/`) — describe the actual running system, not an aspirational design.
+4. **Write ADRs** for the top 3–5 most consequential past decisions that shaped the codebase. Use the standard ADR template.
+5. **Populate conventions** (`wiki/conventions/`) — document the coding patterns already in use so the AI follows them.
+6. **Register ADRs** in `wiki/decisions/registry.md` — prevents future number collisions.
+7. **Baseline `wiki/deviations.md`** — document any known gaps between the wiki and reality.
+8. **Start Phase 7** using the existing codebase as the source of truth, not the Phase 1–6 spec.
+
+> [!note] For brownfield projects, wiki/overview.md should be written from the actual system state, not the aspirational one. Mark any unverified claims as `(unverified — pending audit)`.
 
 ---
 

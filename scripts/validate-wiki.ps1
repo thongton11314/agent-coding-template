@@ -184,18 +184,60 @@ function Check-RelatedField {
     return $issues
 }
 
+function Check-AdrUniqueness {
+    $decisionsDir = Join-Path $WikiDir "decisions"
+    if (-not (Test-Path $decisionsDir)) { return @() }
+
+    $adrs = Get-ChildItem -Path $decisionsDir -Filter "adr-*.md" -ErrorAction SilentlyContinue
+    $issues = @()
+    $seen = @{}
+    foreach ($adr in $adrs) {
+        # Extract the numeric prefix, e.g. adr-003-... -> 003
+        if ($adr.Name -match '^adr-(\d+)-') {
+            $num = $Matches[1]
+            if ($seen.ContainsKey($num)) {
+                $issues += "  DUPLICATE ADR number $num`: $($seen[$num]) AND $($adr.Name)"
+            } else {
+                $seen[$num] = $adr.Name
+            }
+        } else {
+            $issues += "  MALFORMED ADR filename: $($adr.Name) (expected adr-NNN-description.md)"
+        }
+    }
+    return $issues
+}
+
+function Check-RequiredDirs {
+    $required = @(
+        "conventions",
+        "modules",
+        "architecture",
+        "decisions"
+    )
+    $issues = @()
+    foreach ($dir in $required) {
+        $path = Join-Path $WikiDir $dir
+        if (-not (Test-Path $path)) {
+            $issues += "  MISSING required directory: wiki/$dir"
+        }
+    }
+    return $issues
+}
+
 # --- Main ---
 
 $pages = Get-WikiPages
 Write-Host "Found $($pages.Count) wiki pages.`n"
 
 $checks = @(
-    @{ Name = "Frontmatter";     Fn = { Check-Frontmatter $pages } }
-    @{ Name = "Filenames";       Fn = { Check-Filenames $pages } }
-    @{ Name = "Wikilinks";       Fn = { Check-Wikilinks $pages } }
-    @{ Name = "Related Fields";  Fn = { Check-RelatedField $pages } }
-    @{ Name = "Orphans";         Fn = { Check-Orphans $pages } }
-    @{ Name = "Index Coverage";  Fn = { Check-IndexCoverage $pages } }
+    @{ Name = "Frontmatter";         Fn = { Check-Frontmatter $pages } }
+    @{ Name = "Filenames";           Fn = { Check-Filenames $pages } }
+    @{ Name = "Wikilinks";           Fn = { Check-Wikilinks $pages } }
+    @{ Name = "Related Fields";      Fn = { Check-RelatedField $pages } }
+    @{ Name = "Orphans";             Fn = { Check-Orphans $pages } }
+    @{ Name = "Index Coverage";      Fn = { Check-IndexCoverage $pages } }
+    @{ Name = "ADR Uniqueness";      Fn = { Check-AdrUniqueness } }
+    @{ Name = "Required Dirs";       Fn = { Check-RequiredDirs } }
 )
 
 $totalIssues = 0
