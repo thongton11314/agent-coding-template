@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Job 1: Wiki health check (always runs)
+  # ──────────────────────────────────────────────
+  wiki-lint:
+    name: Wiki Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PowerShell
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q powershell
+
+      - name: Run wiki validation
+        run: pwsh scripts/validate-wiki.ps1
+
+  # ──────────────────────────────────────────────
+  # Job 2: Project tests (customize per tech stack)
+  # ──────────────────────────────────────────────
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── CUSTOMIZE: replace the block below with your project's test command ──
+      #
+      # Python example:
+      #   - uses: actions/setup-python@v5
+      #     with: { python-version: "3.12" }
+      #   - run: pip install -e ".[dev]"
+      #   - run: python -m pytest tests/ -x -q
+      #
+      # Node.js example:
+      #   - uses: actions/setup-node@v4
+      #     with: { node-version: "20" }
+      #   - run: npm ci
+      #   - run: npm test
+      #
+      # .NET example:
+      #   - uses: actions/setup-dotnet@v4
+      #     with: { dotnet-version: "8.x" }
+      #   - run: dotnet test
+      #
+      # ── PLACEHOLDER — remove this echo once you add real test steps ──
+      - name: "[PLACEHOLDER] Add your test command here"
+        run: echo "No tests configured yet. See .github/workflows/ci.yml for examples."

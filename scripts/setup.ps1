@@ -4,14 +4,22 @@
 # Pulls the framework into an existing project.
 #
 # Usage:
-#   irm https://raw.githubusercontent.com/YOUR_USERNAME/agent-coding-template/main/scripts/setup.ps1 | iex
+#   irm https://raw.githubusercontent.com/thongton11314/agent-coding-template/main/scripts/setup.ps1 | iex
 #   — or —
-#   git clone https://github.com/YOUR_USERNAME/agent-coding-template.git $env:TEMP\adf; & $env:TEMP\adf\scripts\setup.ps1
+#   git clone https://github.com/thongton11314/agent-coding-template.git $env:TEMP\adf; & $env:TEMP\adf\scripts\setup.ps1
+#
+# Optional parameters:
+#   -RepoUrl  Override the template repository URL (useful for forks)
+#   -Force    Overwrite files that already exist
 # ──────────────────────────────────────────────────────────────
+param(
+    [string]$RepoUrl = "https://github.com/thongton11314/agent-coding-template.git",
+    [switch]$Force
+)
 
 $ErrorActionPreference = "Stop"
 
-$Repo = "https://github.com/YOUR_USERNAME/agent-coding-template.git"
+$Repo = $RepoUrl
 $Branch = "main"
 $TmpDir = Join-Path $env:TEMP "adf-setup-$(Get-Random)"
 
@@ -38,23 +46,33 @@ $Dirs = @(
     "wiki\test-results\screenshots"
     "scripts"
     ".github"
+    ".github\agents"
+    ".github\workflows"
 )
 
 # Files to install
 $Files = @(
     "AGENTS.md"
     "CLAUDE.md"
+    "SECURITY.md"
     ".cursorrules"
     ".windsurfrules"
     ".clinerules"
     ".github\copilot-instructions.md"
+    ".github\agents\agent-developer.md"
+    ".github\agents\explore.md"
+    ".github\workflows\ci.yml"
     "wiki\index.md"
     "wiki\log.md"
     "wiki\overview.md"
+    "wiki\conventions\coding-conventions.md"
+    "wiki\conventions\testing-conventions.md"
+    "wiki\decisions\registry.md"
     "raw\README.md"
     "framework-template.md"
     "scripts\validate-wiki.ps1"
     "scripts\validate-wiki.sh"
+    "scripts\setup-hooks.ps1"
 )
 
 # Create directories
@@ -65,17 +83,22 @@ foreach ($dir in $Dirs) {
     }
 }
 
-# Copy files (skip if already exists)
+# Copy files (skip if already exists, or overwrite if -Force)
 Write-Host "[3/4] Installing files..."
 $Skipped = 0
 $Installed = 0
 foreach ($file in $Files) {
     $src = Join-Path $TmpDir $file
-    if (Test-Path $file) {
-        Write-Host "  SKIP  $file (already exists)" -ForegroundColor Yellow
+    if ((Test-Path $file) -and -not $Force) {
+        Write-Host "  SKIP  $file (already exists — use -Force to overwrite)" -ForegroundColor Yellow
         $Skipped++
     }
     elseif (Test-Path $src) {
+        # Ensure parent directory exists
+        $parent = Split-Path $file -Parent
+        if ($parent -and -not (Test-Path $parent)) {
+            New-Item -ItemType Directory -Path $parent -Force | Out-Null
+        }
         Copy-Item $src -Destination $file -Force
         Write-Host "  ADD   $file" -ForegroundColor Green
         $Installed++
@@ -91,7 +114,8 @@ Write-Host "  Installed: $Installed files"
 Write-Host "  Skipped:   $Skipped files (already existed)"
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
-Write-Host "  1. Replace YOUR_USERNAME in setup scripts with your GitHub username"
-Write-Host "  2. Open the project in your AI tool — it will pick up the framework automatically"
-Write-Host "  3. Try: 'Ingest raw/rest-api-design-best-practices.md' to see it in action"
+Write-Host "  1. Open the project in your AI tool — it will pick up the framework automatically"
+Write-Host "  2. Run 'pwsh scripts/setup-hooks.ps1' to install the pre-commit wiki-check hook"
+Write-Host "  3. Try: 'Ingest raw/rest-api-design-best-practices.md' to see the wiki in action"
+Write-Host "  4. For existing codebases: ask the AI to run Workflow 11 (Brownfield Onboarding)"
 Write-Host ""
