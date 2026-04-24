@@ -18,7 +18,7 @@ This framework provides **persistent context** for AI-assisted development. It c
 
 ## Terminology
 
-- **Workflows** (1–9) — operational procedures for managing knowledge and code (ingest, query, lint, etc.). Defined in this file.
+- **Workflows** (1–11) — operational procedures for managing knowledge and code (ingest, query, lint, cleanup, etc.). Defined in this file.
 - **Phases** (1–8) — sequential application delivery steps in the multi-agent pipeline. Defined in `framework-template.md`.
 - **Agents** (0–7) — eight specialized AI entities that execute phases. Defined in `framework-template.md`.
 
@@ -63,9 +63,15 @@ updated: YYYY-MM-DD
 tags: [tag1, tag2]
 sources: []           # raw documents this page draws from
 related: []           # related wiki pages (wikilink targets)
+source_paths: []      # optional — repo-relative code paths this page documents
+                      # (used by the cleanup workflow to detect stale pages)
 status: active | draft | deprecated | superseded | spec | verified
 ---
 ```
+
+> `source_paths` is optional but strongly recommended on `module`, `architecture`, and `convention`
+> pages. It lets the validator flag wiki pages whose underlying code has been removed, so
+> documentation does not silently drift out of sync with the codebase.
 
 ### Content Format
 
@@ -266,6 +272,69 @@ When implementation differs from spec:
 | Date | Wiki Page | Spec Claim | Actual Implementation | Reason |
 |------|-----------|------------|----------------------|--------|
 ```
+
+#### 11. Deprecation & Cleanup Sync
+
+Required whenever code is **deleted, renamed, moved, or materially refactored**. This keeps the wiki honest when the underlying codebase shrinks or shifts, and enforces **deprecation over deletion** so history is preserved.
+
+##### Triggers
+
+- A file, module, service, endpoint, or public symbol is removed.
+- A file or module is renamed or moved to a new path.
+- A dependency, integration, or external contract is retired.
+- A documented pattern, convention, or decision no longer reflects the code.
+
+##### Step 1 — Detect Affected Wiki Pages
+
+1. Collect the list of repo-relative paths that were deleted, renamed, or moved.
+2. Scan wiki pages for any of the following signals:
+   - `source_paths:` frontmatter entries that reference a path no longer present in the repo.
+   - Body references (code fences, inline backticks, `[[wikilinks]]`, or plain text) naming a removed file, module, route, or symbol.
+   - ADRs (`wiki/decisions/`) whose `Decision` or `Consequences` depend on the removed code.
+3. Run `scripts/validate-wiki.ps1` (or `.sh`) — the `source_paths` check emits non-fatal warnings for every stale path.
+
+##### Step 2 — Classify Each Affected Page
+
+For each page flagged in Step 1, classify the change:
+
+| Classification | Meaning | Required Action |
+|---------------|---------|-----------------|
+| **Relocated** | Code moved but behavior unchanged | Update `source_paths` + body references to new path. Bump `updated`. |
+| **Superseded** | Replaced by a different module/pattern | Set `status: superseded`. Add `> [!breaking]` callout linking to the replacement page. Bump `updated`. |
+| **Deprecated** | Removed without a direct replacement | Set `status: deprecated`. Add `> [!deprecated]` callout with date + reason. Bump `updated`. |
+| **Still accurate** | Page documents broader concept unaffected by the change | No status change. Remove stale path references only. |
+
+##### Step 3 — Propose Changes (Approval Gate)
+
+Before writing, present the user with a **Deprecation Proposal Table**:
+
+```markdown
+| Wiki Page | Classification | Proposed Status | Callout | Notes |
+|-----------|---------------|-----------------|---------|-------|
+```
+
+Wait for approval. **Never silently overwrite or hard-delete a wiki page.** Lifecycle the page instead — `deprecated` and `superseded` pages stay on disk as historical record.
+
+##### Step 4 — Apply Approved Changes
+
+1. Flip `status` in frontmatter. Bump `updated` to today.
+2. Add the callout at the top of the page body:
+   - `> [!breaking] Superseded YYYY-MM-DD by [[replacement-page]]. Reason: ...`
+   - `> [!deprecated] Deprecated YYYY-MM-DD. Reason: ...`
+3. Update or remove stale `source_paths` entries.
+4. Update `wiki/index.md` — mark the row as `deprecated` / `superseded` in the status column (if present) and move to an archived section if the index has one.
+5. If the change alters documented behavior rather than just paths, append a row to `wiki/deviations.md`.
+6. Append an entry to `wiki/log.md` with operation `deprecate` or `supersede`.
+
+##### Step 5 — Re-run Sync Gate
+
+After applying Step 4, run Workflow 10 (Sync Gate) to confirm the code-wiki mapping table reflects the deprecation and that no active page still claims the removed code exists.
+
+##### Principles
+
+- **Deprecation over deletion.** Pages are never hard-deleted by the agent. Only the user can remove historical pages manually.
+- **Callouts are mandatory.** A status flip without a dated callout is incomplete.
+- **Generic detection.** This workflow relies only on frontmatter (`source_paths`, `status`) and textual references — no language-specific parsers — so it works for any stack.
 
 ---
 

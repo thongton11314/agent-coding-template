@@ -21,11 +21,14 @@ WIKI_DIR="$(cd "$WIKI_DIR" && pwd)"
 # --- Config ---
 REQUIRED_FIELDS="title type created updated tags status"
 VALID_TYPES="source entity concept analysis architecture decision convention module overview"
-VALID_STATUSES="active draft deprecated superseded"
+VALID_STATUSES="active draft deprecated superseded spec verified"
 EXEMPT_PAGES="index log overview"
 
 TOTAL_ISSUES=0
+TOTAL_WARNINGS=0
 PAGE_COUNT=0
+
+REPO_ROOT="$(cd "$WIKI_DIR/.." && pwd)"
 
 # --- Collect all wiki pages ---
 declare -A PAGES  # stem -> filepath
@@ -223,9 +226,36 @@ check_related_fields() {
     return $issues
 }
 
+# --- Check: Source Paths (warn-only) ---
+# Detects stale `source_paths:` entries pointing to files removed/moved in the repo.
+# Emits warnings (non-fatal) to power the Deprecation & Cleanup Sync workflow.
+check_source_paths() {
+    local issues=0
+    for stem in "${!PAGES[@]}"; do
+        local file="${PAGES[$stem]}"
+        local raw
+        raw="$(get_fm_field "$file" "source_paths")"
+        if [ -z "$raw" ]; then continue; fi
+        raw="${raw#[}"
+        raw="${raw%]}"
+        IFS=',' read -ra items <<< "$raw"
+        for item in "${items[@]}"; do
+            item="$(echo "$item" | xargs)"
+            item="${item#\"}"; item="${item%\"}"
+            item="${item#\'}"; item="${item%\'}"
+            if [ -z "$item" ]; then continue; fi
+            if [ ! -e "$REPO_ROOT/$item" ]; then
+                echo "  STALE source_path '$item' in $(rel_path "$file") (code removed or moved)"
+                issues=$((issues + 1))
+            fi
+        done
+    done
+    return $issues
+}
+
 # --- Run checks ---
 run_check() {
-    local name="$1" fn="$2"
+    local name="$1" fn="$2" warn="${3:-false}"
     local issues=0
     local output
     output="$($fn)" || true
@@ -233,6 +263,12 @@ run_check() {
 
     if [ "$issues" -eq 0 ]; then
         printf "\033[32m[PASS]\033[0m %s\n" "$name"
+    elif [ "$warn" = "true" ]; then
+        printf "\033[33m[WARN]\033[0m %s\n" "$name"
+        echo "$output"
+        echo ""
+        TOTAL_WARNINGS=$((TOTAL_WARNINGS + issues))
+        return 0
     else
         printf "\033[31m[FAIL]\033[0m %s\n" "$name"
         echo "$output"
@@ -245,14 +281,20 @@ run_check "Frontmatter" check_frontmatter
 run_check "Filenames" check_filenames
 run_check "Wikilinks" check_wikilinks
 run_check "Related Fields" check_related_fields
+run_check "Source Paths" check_source_paths true
 run_check "Orphans" check_orphans
 run_check "Index Coverage" check_index_coverage
 
 echo ""
 echo "========================================"
-if [ "$TOTAL_ISSUES" -eq 0 ]; then
+if [ "$TOTAL_ISSUES" -eq 0 ] && [ "$TOTAL_WARNINGS" -eq 0 ]; then
     printf "\033[32mAll checks passed.\033[0m\n"
+elif [ "$TOTAL_ISSUES" -eq 0 ]; then
+    printf "\033[33m%d warning(s) found (non-fatal).\033[0m\n" "$TOTAL_WARNINGS"
 else
     printf "\033[31m%d issue(s) found.\033[0m\n" "$TOTAL_ISSUES"
+    if [ "$TOTAL_WARNINGS" -gt 0 ]; then
+        printf "\033[33m%d warning(s) found (non-fatal).\033[0m\n" "$TOTAL_WARNINGS"
+    fi
 fi
 exit $((TOTAL_ISSUES > 0 ? 1 : 0))

@@ -161,7 +161,28 @@ pwsh scripts/validate-wiki.ps1
 bash scripts/validate-wiki.sh
 ```
 
-Checks for: missing frontmatter, broken `[[wikilinks]]`, orphan pages, filename conventions, index coverage.
+Checks for: missing frontmatter, broken `[[wikilinks]]`, orphan pages, filename conventions, index coverage, and stale `source_paths` (warning only).
+
+### Cleanup & Deprecation Sync
+
+As your codebase evolves — files deleted, modules renamed, patterns retired — the wiki must follow. This template bakes that into the agent's contract via **Workflow 11 (Deprecation & Cleanup Sync)** in [`AGENTS.md`](AGENTS.md).
+
+**How it works:**
+
+- **`source_paths` frontmatter** (optional, recommended on `module`, `architecture`, `convention` pages) — a YAML array of repo-relative paths the page documents. The validator flags any path that no longer exists.
+  ```yaml
+  source_paths:
+    - src/auth/login.ts
+    - src/auth/session.ts
+  ```
+- **Status lifecycle** — pages carry a `status` field. Allowed values: `active`, `draft`, `deprecated`, `superseded`, `spec`, `verified`.
+  - `spec` — the page describes intended behavior before code exists.
+  - `verified` — the page has been reconciled against shipped code.
+  - `deprecated` / `superseded` — the page is kept as historical record, never deleted.
+- **Warn-only detection** — stale `source_paths` produce `[WARN]` output but do **not** fail validation. Deprecation is a deliberate, user-approved action (see AGENTS.md Workflow 11), not an automatic one.
+- **Deprecation over deletion** — the agent never hard-deletes wiki pages. It flips `status`, adds a dated `> [!deprecated]` or `> [!breaking]` callout, and updates `wiki/index.md` + `wiki/log.md`.
+
+When you delete or rename code, ask the agent to "run the cleanup sync" — it will scan for affected pages, classify each (Relocated / Superseded / Deprecated / Still accurate), and present a proposal table for your approval before touching anything.
 
 ## Example
 

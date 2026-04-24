@@ -17,7 +17,7 @@ if (-not $WikiDir -or -not (Test-Path $WikiDir)) {
 # --- Config ---
 $RequiredFields = @("title", "type", "created", "updated", "tags", "status")
 $ValidTypes = @("source", "entity", "concept", "analysis", "architecture", "decision", "convention", "module", "overview")
-$ValidStatuses = @("active", "draft", "deprecated", "superseded")
+$ValidStatuses = @("active", "draft", "deprecated", "superseded", "spec", "verified")
 $ExemptPages = @("index", "log", "overview")
 
 # --- Helpers ---
@@ -184,30 +184,63 @@ function Check-RelatedField {
     return $issues
 }
 
+function Check-ModulePathsExist {
+    param($Pages)
+    $issues = @()
+    $repoRoot = (Resolve-Path (Join-Path $WikiDir "..")).Path
+    foreach ($entry in $Pages.GetEnumerator()) {
+        $parsed = Parse-Frontmatter $entry.Value
+        if ($null -eq $parsed.Frontmatter -or -not $parsed.Frontmatter.ContainsKey("source_paths")) { continue }
+        $raw = $parsed.Frontmatter["source_paths"]
+        if ($raw -match '^\[(.+)\]$') {
+            $items = $Matches[1] -split ',\s*'
+            foreach ($p in $items) {
+                $p = $p.Trim().Trim('"', "'")
+                if ($p -and -not (Test-Path (Join-Path $repoRoot $p))) {
+                    $rel = Get-RelativePath $entry.Value
+                    $issues += "  STALE source_path '$p' in $rel (code removed or moved)"
+                }
+            }
+        }
+    }
+    return $issues
+}
+
 # --- Main ---
 
 $pages = Get-WikiPages
 Write-Host "Found $($pages.Count) wiki pages.`n"
 
 $checks = @(
-    @{ Name = "Frontmatter";     Fn = { Check-Frontmatter $pages } }
-    @{ Name = "Filenames";       Fn = { Check-Filenames $pages } }
-    @{ Name = "Wikilinks";       Fn = { Check-Wikilinks $pages } }
-    @{ Name = "Related Fields";  Fn = { Check-RelatedField $pages } }
-    @{ Name = "Orphans";         Fn = { Check-Orphans $pages } }
-    @{ Name = "Index Coverage";  Fn = { Check-IndexCoverage $pages } }
+    @{ Name = "Frontmatter";     Fn = { Check-Frontmatter $pages };      Warn = $false }
+    @{ Name = "Filenames";       Fn = { Check-Filenames $pages };        Warn = $false }
+    @{ Name = "Wikilinks";       Fn = { Check-Wikilinks $pages };        Warn = $false }
+    @{ Name = "Related Fields";  Fn = { Check-RelatedField $pages };     Warn = $false }
+    @{ Name = "Source Paths";    Fn = { Check-ModulePathsExist $pages }; Warn = $true }
+    @{ Name = "Orphans";         Fn = { Check-Orphans $pages };          Warn = $false }
+    @{ Name = "Index Coverage";  Fn = { Check-IndexCoverage $pages };    Warn = $false }
 )
 
 $totalIssues = 0
+$totalWarnings = 0
 foreach ($check in $checks) {
     $issues = & $check.Fn
-    $status = if ($issues.Count -eq 0) { "PASS" } else { "FAIL" }
-    $color = if ($issues.Count -eq 0) { "Green" } else { "Red" }
+    if ($issues.Count -eq 0) {
+        $status = "PASS"; $color = "Green"
+    } elseif ($check.Warn) {
+        $status = "WARN"; $color = "Yellow"
+    } else {
+        $status = "FAIL"; $color = "Red"
+    }
     Write-Host "[$status] $($check.Name)" -ForegroundColor $color
     foreach ($issue in $issues) {
         Write-Host $issue -ForegroundColor Yellow
     }
-    $totalIssues += $issues.Count
+    if ($check.Warn) {
+        $totalWarnings += $issues.Count
+    } else {
+        $totalIssues += $issues.Count
+    }
     if ($issues.Count -gt 0) { Write-Host "" }
 }
 
