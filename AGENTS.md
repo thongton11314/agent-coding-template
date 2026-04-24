@@ -150,6 +150,7 @@ Before writing, modifying, or deleting code:
    - Architecture constraints and data flows (`wiki/architecture/`).
    - Past decisions and their rationale (`wiki/decisions/`).
 3. **Follow** established patterns. If the change conflicts with existing conventions, flag it to the user before proceeding.
+4. **Apply Coding Discipline P1 — Think Before Coding** (see Guiding Principles). Name the interpretation you're acting on, state assumptions explicitly, and ask for clarification rather than guessing. For multi-step work, also draft a P4 plan (`N. [Step] → verify: [check]`) before writing code.
 
 #### 5. After Any Code Change
 
@@ -214,6 +215,10 @@ The template defines 8 agents and 8 phases. See `wiki/concepts/multi-agent-orche
 
 After completing any code create/update/delete, execute all 5 steps in order.
 No step may be skipped, even for "small" changes.
+
+> Apply the **Coding Discipline** principles throughout (see Guiding Principles).
+> Especially **Surgical Changes** (P3) when editing, and **Goal-Driven Execution**
+> (P4) when defining what "done" means for each step.
 
 **Step 1 — Update the Wiki**
 - Update every affected module page in `wiki/modules/`.
@@ -282,7 +287,7 @@ When the user asks to lint or review the wiki:
 
 #### 10. Sync Gate (Bidirectional Verification)
 
-Required after every code change, before marking the change complete. This ensures code and wiki stay in sync in **both directions**.
+Required after every code change, before marking the change complete. This ensures code and wiki stay in sync in **both directions**. The Sync Gate is the verification loop for **Goal-Driven Execution** (Coding Discipline P4) at the change-set level: both passes must succeed or the change is not done.
 
 ##### Step 1 — Code-Wiki Mapping Table
 
@@ -438,8 +443,96 @@ Each entry in `wiki/index.md` follows this format:
 
 ## Guiding Principles
 
+These are the non-negotiable defaults for every session. **Wiki Discipline** governs
+how knowledge is filed and maintained. **Coding Discipline** governs how the agent
+reasons about and writes code. Both apply together on every change.
+
+### Wiki Discipline
+
 1. **The wiki is the product.** Chat is ephemeral; the wiki is permanent. Anything valuable should be filed.
 2. **Compound, don't repeat.** When new data arrives, update existing pages — don't create duplicates.
 3. **Flag conflicts explicitly.** Contradictions are valuable information. Never silently overwrite.
 4. **Cross-reference aggressively.** The value of the wiki grows with its connections.
 5. **Human curates, LLM maintains.** The user decides what to ingest and what questions to ask. The LLM does all the filing, linking, and bookkeeping.
+
+### Coding Discipline
+
+These four principles apply to every code operation — Workflow 4 (before the change),
+Workflow 5 (after the change), and every step of the Post-Change Pipeline. They are
+safeguards against the LLM failure modes of silent assumption, overengineering,
+scope creep, and unverifiable "done."
+
+#### 1. Think Before Coding
+
+> Don't assume. Don't hide confusion. Surface tradeoffs.
+
+LLMs often pick an interpretation silently and run with it. This principle forces
+explicit reasoning:
+
+- **State assumptions explicitly** — If uncertain, ask rather than guess.
+- **Present multiple interpretations** — Don't pick silently when ambiguity exists.
+- **Push back when warranted** — If a simpler approach exists, say so.
+- **Stop when confused** — Name what's unclear and ask for clarification.
+
+Applied in Workflow 4 (before any code change): after reading the relevant wiki pages,
+name the interpretation you're acting on and the assumptions you're making before
+writing code.
+
+#### 2. Simplicity First
+
+> Minimum code that solves the problem. Nothing speculative.
+
+Combat the tendency toward overengineering:
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If 200 lines could be 50, rewrite it.
+
+The test: Would a senior engineer say this is overcomplicated? If yes, simplify.
+
+#### 3. Surgical Changes
+
+> Touch only what you must. Clean up only your own mess.
+
+When editing existing code:
+
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+
+When your changes create orphans:
+
+- Remove imports/variables/functions that **your** changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request. This
+principle also bounds the Sync Gate (Workflow 10) — the Code-Wiki Mapping Table
+should only contain files you deliberately touched.
+
+#### 4. Goal-Driven Execution
+
+> Define success criteria. Loop until verified.
+
+Transform imperative tasks into verifiable goals:
+
+| Instead of...    | Transform to...                                                |
+|------------------|----------------------------------------------------------------|
+| "Add validation" | "Write tests for invalid inputs, then make them pass"          |
+| "Fix the bug"    | "Write a test that reproduces it, then make it pass"           |
+| "Refactor X"     | "Ensure tests pass before and after"                           |
+
+For multi-step tasks, state a brief plan:
+
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let the LLM loop independently. Weak criteria ("make it
+work") require constant clarification. The Post-Change Pipeline's Step 3 (Run Tests)
+is the final verification loop — but every earlier step should also name its own
+check.

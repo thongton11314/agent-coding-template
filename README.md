@@ -77,6 +77,20 @@ flowchart TD
 
 The wiki compounds over time. Every source ingested and every code change enriches it.
 
+## Core Principles
+
+Two disciplines govern every agent action — defined in full in [`AGENTS.md`](AGENTS.md#guiding-principles).
+
+**Wiki Discipline** — The wiki is the product · Compound, don't repeat · Flag conflicts explicitly · Cross-reference aggressively · Human curates, LLM maintains.
+
+**Coding Discipline**
+- **P1. Think Before Coding** — State assumptions, surface interpretations, stop when confused.
+- **P2. Simplicity First** — No unrequested features or abstractions; prefer the 50-line rewrite over the 200-line patch.
+- **P3. Surgical Changes** — Touch only what the task requires; match surrounding style.
+- **P4. Goal-Driven Execution** — Plans use the format `N. [Step] → verify: [check]`.
+
+These principles apply to every workflow: before the change (Workflow 4), after the change (Workflow 5), and at every step of the Post-Change Pipeline.
+
 ## Multi-Agent Orchestration Template
 
 The framework includes `framework-template.md` — a reusable specification template for building applications with a multi-agent pipeline. Eight specialized AI agents collaborate through 8 sequential phases:

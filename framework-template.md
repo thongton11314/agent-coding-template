@@ -642,7 +642,7 @@ PHASE 1 — PRODUCT AND SCOPE
     - ADR-001: MVP scope boundaries
   Gate criteria:
     - Every feature classified as MVP or future
-    - Assumptions are listed explicitly
+    - Assumptions are listed explicitly (P1 Think Before Coding — see AGENTS.md Guiding Principles)
     - Agent 2 confirms scope is designable
     - Agent 6 confirms scope is testable
 
@@ -760,6 +760,7 @@ PHASE 6 — ROADMAP AND IMPLEMENTATION PLANNING
     - wiki/overview.md (final update with complete project state)
   Gate criteria:
     - Roadmap references concrete wiki artifacts for every task
+    - Every roadmap step uses the format `N. [Step] → verify: [check]` (P4 Goal-Driven Execution — see AGENTS.md Guiding Principles)
     - Risks have mitigations and owners
     - All agents confirm their domain is accurately represented
     - wiki/overview.md reflects the complete project state

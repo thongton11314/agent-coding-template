@@ -72,7 +72,7 @@ See [[testing-conventions]] for the full testing strategy.
 
 ## Security Conventions
 
-See [[SECURITY]] for the full security checklist.
+See [SECURITY.md](../../SECURITY.md) for the full security checklist.
 
 - All inputs validated at system boundaries.
 - Secrets loaded from environment variables only.
