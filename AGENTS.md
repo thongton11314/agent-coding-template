@@ -33,7 +33,7 @@ This framework uses a **single developer agent** with modular skills, plus a
 
 ### Developer Agent
 
-The developer agent handles all code and wiki changes. It operates through six skills:
+The developer agent handles all code and wiki changes. It operates through seven skills:
 
 | Skill | Purpose | When Used |
 |-------|---------|-----------|
@@ -53,6 +53,17 @@ behavior.
 
 A read-only agent for searching the codebase and answering questions. It never
 modifies files, runs commands, or updates the wiki.
+
+### Inter-Agent Handoff
+
+The two agents do not chain automatically. Routing is user-mediated:
+
+- **Explore** surfaces findings and gaps → the user decides whether to act.
+- **Developer agent** may invoke Explore as a subagent to gather context before
+  making changes (see Pre-Change Checklist: "if context is insufficient, invoke
+  Explore as a subagent before proceeding").
+- There is no automatic "Explore → Developer" pipeline. This is intentional —
+  it prevents accidental mutations from read-only queries.
 
 ---
 

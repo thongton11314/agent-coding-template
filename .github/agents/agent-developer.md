@@ -3,13 +3,15 @@ name: agent-developer
 description: >
   Use when making any code change — adding features, fixing bugs, refactoring,
   updating modules, editing configuration, or changing any file in src/, tests/,
-  ui/, config/, scripts/, or wiki/. Enforces the full post-change pipeline:
+  src/frontend/, config/, scripts/, or wiki/. Enforces the full post-change pipeline:
   wiki update → sync gate → tests → README → git push.
 tools:
   - read_file
   - replace_string_in_file
+  - multi_replace_string_in_file
   - create_file
   - run_in_terminal
+  - list_dir
   - grep_search
   - file_search
   - semantic_search

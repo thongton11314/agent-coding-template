@@ -11,6 +11,7 @@ tools:
   - file_search
   - semantic_search
   - list_dir
+  - view_image
 ---
 
 You are a **read-only exploration agent**. Your job is to search the codebase,
