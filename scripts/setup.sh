@@ -5,13 +5,13 @@
 # Pulls the framework into an existing project.
 #
 # Usage:
-#   curl -sL https://raw.githubusercontent.com/YOUR_USERNAME/agent-coding-template/main/scripts/setup.sh | bash
+#   curl -sL https://raw.githubusercontent.com/thongton11314/agent-coding-template/main/scripts/setup.sh | bash
 #   — or —
-#   git clone https://github.com/YOUR_USERNAME/agent-coding-template.git /tmp/adf && bash /tmp/adf/scripts/setup.sh
+#   git clone https://github.com/thongton11314/agent-coding-template.git /tmp/adf && bash /tmp/adf/scripts/setup.sh
 # ──────────────────────────────────────────────────────────────
 set -euo pipefail
 
-REPO="https://github.com/YOUR_USERNAME/agent-coding-template.git"
+REPO="https://github.com/thongton11314/agent-coding-template.git"
 BRANCH="main"
 TMPDIR=$(mktemp -d)
 
@@ -24,6 +24,7 @@ git clone --depth 1 --branch "$BRANCH" "$REPO" "$TMPDIR" 2>/dev/null
 
 # Files and directories to install
 DIRS=(
+    "src"
     "raw/assets"
     "wiki/sources"
     "wiki/entities"
@@ -33,26 +34,31 @@ DIRS=(
     "wiki/decisions"
     "wiki/conventions"
     "wiki/modules"
-    "wiki/test-results"
-    "wiki/test-results/screenshots"
     "scripts"
     ".github"
+    ".github/agents"
+    ".github/workflows"
 )
 
 FILES=(
     "AGENTS.md"
     "CLAUDE.md"
-    ".cursorrules"
-    ".windsurfrules"
-    ".clinerules"
+    "SECURITY.md"
     ".github/copilot-instructions.md"
+    ".github/agents/agent-developer.md"
+    ".github/agents/explore.md"
+    ".github/workflows/ci.yml"
     "wiki/index.md"
     "wiki/log.md"
     "wiki/overview.md"
+    "wiki/deviations.md"
+    "wiki/conventions/coding-conventions.md"
+    "wiki/conventions/testing-conventions.md"
+    "wiki/decisions/registry.md"
     "raw/README.md"
-    "framework-template.md"
     "scripts/validate-wiki.ps1"
     "scripts/validate-wiki.sh"
+    "scripts/setup-hooks.ps1"
 )
 
 # Create directories
@@ -85,7 +91,8 @@ echo "  Installed: $INSTALLED files"
 echo "  Skipped:   $SKIPPED files (already existed)"
 echo ""
 echo "Next steps:"
-echo "  1. Replace YOUR_USERNAME in setup scripts with your GitHub username"
-echo "  2. Open the project in your AI tool — it will pick up the framework automatically"
-echo "  3. Try: \"Ingest raw/rest-api-design-best-practices.md\" to see it in action"
+echo "  1. Open the project in your AI tool — it will pick up the framework automatically"
+echo "  2. Run 'bash scripts/setup-hooks.ps1' or 'pwsh scripts/setup-hooks.ps1' to install pre-commit hook"
+echo "  3. Try: \"Ingest raw/rest-api-design-best-practices.md\" to see the wiki in action"
+echo "  4. For existing codebases: ask the AI to run Workflow 11 (Brownfield Onboarding)"
 echo ""

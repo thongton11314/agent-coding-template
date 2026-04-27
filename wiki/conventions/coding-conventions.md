@@ -13,7 +13,7 @@ status: draft
 
 > [!note] This is a stub page. The AI developer agent will populate it as
 > conventions are established in the codebase. Fill in each section during
-> Phase 3 (Technical Architecture) or Workflow 11 (Brownfield Onboarding).
+> Workflow 11 (Brownfield Onboarding) or when the tech stack is chosen.
 
 ## Language and Runtime
 

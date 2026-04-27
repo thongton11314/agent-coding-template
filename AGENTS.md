@@ -18,18 +18,50 @@ This framework provides **persistent context** for AI-assisted development. It c
 
 ## Terminology
 
-- **Workflows** (1–12) — operational procedures for managing knowledge and code (ingest, query, lint, cleanup, etc.). Defined in this file.
-- **Phases** (1–8) — sequential application delivery steps in the multi-agent pipeline. Defined in `framework-template.md`.
-- **Agents** (0–7) — eight specialized AI entities that execute phases. Defined in `framework-template.md`.
+- **Workflows** (1–11) — operational procedures for managing knowledge and code (ingest, query, lint, cleanup, etc.). Defined in this file.
+- **Skills** — modular capabilities the developer agent uses: plan, implement, test, wiki-sync, review, commit.
 - **Post-Change Pipeline** — the mandatory 5-step sequence (wiki → sync gate → tests → README → commit) that runs after every code change.
-- **Sync Gate** — Workflow 10: bidirectional code↔wiki verification with a Code-Wiki Mapping Table.
-- **Brownfield** — adoption of the framework on an already-running codebase (Workflow 12).
+- **Sync Gate** — Workflow 9: bidirectional code↔wiki verification with a Code-Wiki Mapping Table.
+- **Brownfield** — adoption of the framework on an already-running codebase (Workflow 11).
+
+---
+
+## Agent Model
+
+This framework uses a **single developer agent** with modular skills, plus a
+**read-only exploration agent** for searching and answering questions.
+
+### Developer Agent
+
+The developer agent handles all code and wiki changes. It operates through six skills:
+
+| Skill | Purpose | When Used |
+|-------|---------|-----------|
+| **Plan** | Read requirements, identify affected wiki pages, break work into tasks with verify steps | Before any code change (Workflow 4) |
+| **Implement** | Write code following conventions, match existing patterns, create tests | During code changes |
+| **Test** | Run test suite, verify changes, fix failures | Post-Change Pipeline Step 3 |
+| **Wiki Sync** | Update wiki pages, run Sync Gate, maintain index/log/overview | Post-Change Pipeline Steps 1–2 |
+| **Review** | Lint wiki, check code↔wiki consistency, flag contradictions | Workflow 8, Workflow 9 |
+| **Commit** | Stage files, write structured commit messages, push to remote | Post-Change Pipeline Step 5 |
+
+The agent applies all skills in sequence during the Post-Change Pipeline. Skills are
+not separate executables — they are documented capabilities that guide the agent's
+behavior.
+
+### Exploration Agent
+
+A read-only agent for searching the codebase and answering questions. It never
+modifies files, runs commands, or updates the wiki.
 
 ---
 
 ## Directory Structure
 
 ```
+src/                  # Application source code
+  frontend/           # UI code (when the app has a user interface)
+  backend/            # Server/API code (when the app has a server)
+  cli/                # CLI scripts (when the app has no backend server)
 raw/                  # Immutable source documents (articles, papers, specs, data)
   assets/             # Downloaded images and attachments
 wiki/                 # AI-maintained pages — never edit manually
@@ -45,9 +77,21 @@ wiki/                 # AI-maintained pages — never edit manually
   index.md            # Master catalog of all wiki pages
   log.md              # Chronological record of all operations
   overview.md         # High-level synthesis (knowledge + system state)
+scripts/              # Setup, validation, and maintenance scripts
 AGENTS.md             # This file — schema and conventions
-framework-template.md # Multi-agent orchestration template for new projects
 ```
+
+### Source Code Layout
+
+When creating an application, the agent organizes `src/` based on the project type:
+
+- **Full-stack app** (has UI + server) → `src/frontend/` + `src/backend/`
+- **API-only app** (server, no UI) → `src/backend/`
+- **Frontend-only app** (UI, no server) → `src/frontend/`
+- **CLI/script app** (no server, no UI) → `src/cli/`
+
+The agent creates these subdirectories when the user requests application code.
+The setup script only creates the empty `src/` directory.
 
 ---
 
@@ -163,7 +207,7 @@ After completing a code create/update/delete operation:
 5. **Flag contradictions** — if the change conflicts with documented patterns, add `> [!breaking]` callouts on affected pages.
 6. **Update** `wiki/index.md` for any new or modified pages.
 7. **Append** to `wiki/log.md`.
-8. **Run the Sync Gate** (Workflow 10) before marking the change complete.
+8. **Run the Sync Gate** (Workflow 9) before marking the change complete.
 
 #### 6. Register a Module
 
@@ -194,21 +238,6 @@ When a design or architecture decision is made:
 3. **Update** `wiki/index.md`.
 4. **Append** to `wiki/log.md`.
 
-### Orchestration Workflows
-
-#### 8. Use the Orchestration Template
-
-When the user wants to build a new application using the multi-agent pipeline:
-
-1. **Copy** `framework-template.md` and rename it for the project (e.g. `my-app-spec.md`).
-2. **Replace** all `{PLACEHOLDER}` tokens with project-specific values.
-3. **Fill in** `[CUSTOMIZE]` sections with domain-specific content.
-4. **Leave** `[FRAMEWORK]` sections as-is — they work for any project.
-5. **Place** the completed spec in `raw/` as an immutable source (e.g. `raw/prompt.md`).
-6. **Start** Phase 1 — the Orchestrator agent reads the spec and activates the Product Strategist.
-
-The template defines 8 agents and 8 phases. See `wiki/concepts/multi-agent-orchestration.md` and `wiki/concepts/phased-development-pipeline.md` for details.
-
 ### Development Discipline Protocols
 
 #### Post-Change Pipeline (mandatory after every code change)
@@ -228,7 +257,7 @@ No step may be skipped, even for "small" changes.
 - Always append to `wiki/log.md`. Always update `wiki/index.md`.
 
 **Step 2 — Sync Gate**
-Run Workflow 10. Both passes must succeed before proceeding.
+Run Workflow 9. Both passes must succeed before proceeding.
 
 **Step 3 — Run Tests**
 - Run the project's full test suite.
@@ -268,7 +297,7 @@ When project configuration files change (model config, environment variables, AP
 
 ### Maintenance Workflows
 
-#### 9. Lint / Health Check
+#### 8. Lint / Health Check
 
 When the user asks to lint or review the wiki:
 
@@ -285,7 +314,7 @@ When the user asks to lint or review the wiki:
 3. **Fix** issues with user approval.
 4. **Append** to `wiki/log.md`.
 
-#### 10. Sync Gate (Bidirectional Verification)
+#### 9. Sync Gate (Bidirectional Verification)
 
 Required after every code change, before marking the change complete. This ensures code and wiki stay in sync in **both directions**. The Sync Gate is the verification loop for **Goal-Driven Execution** (Coding Discipline P4) at the change-set level: both passes must succeed or the change is not done.
 
@@ -325,7 +354,7 @@ A pass/fail summary for each direction. Both must pass before the change is cons
 
 When implementation differs from spec:
 
-1. Add `> [!note] Deviation from Phase N spec: {description}` on the affected wiki page.
+1. Add `> [!note] Deviation: {description}` on the affected wiki page.
 2. Update the directory listing to reflect reality, not aspiration.
 3. Append an entry to `wiki/deviations.md`:
 
@@ -334,7 +363,7 @@ When implementation differs from spec:
 |------|-----------|------------|----------------------|--------|
 ```
 
-#### 11. Deprecation & Cleanup Sync
+#### 10. Deprecation & Cleanup Sync
 
 Required whenever code is **deleted, renamed, moved, or materially refactored**. This keeps the wiki honest when the underlying codebase shrinks or shifts, and enforces **deprecation over deletion** so history is preserved.
 
@@ -389,7 +418,7 @@ Wait for approval. **Never silently overwrite or hard-delete a wiki page.** Life
 
 ##### Step 5 — Re-run Sync Gate
 
-After applying Step 4, run Workflow 10 (Sync Gate) to confirm the code-wiki mapping table reflects the deprecation and that no active page still claims the removed code exists.
+After applying Step 4, run Workflow 9 (Sync Gate) to confirm the code-wiki mapping table reflects the deprecation and that no active page still claims the removed code exists.
 
 ##### Principles
 
@@ -397,18 +426,18 @@ After applying Step 4, run Workflow 10 (Sync Gate) to confirm the code-wiki mapp
 - **Callouts are mandatory.** A status flip without a dated callout is incomplete.
 - **Generic detection.** This workflow relies only on frontmatter (`source_paths`, `status`) and textual references — no language-specific parsers — so it works for any stack.
 
-#### 12. Brownfield Onboarding
+#### 11. Brownfield Onboarding
 
-When adopting the framework on an already-running codebase (skip Phases 1–6):
+When adopting the framework on an already-running codebase:
 
-1. **Run lint** (Workflow 9) to discover what wiki coverage is missing.
+1. **Run lint** (Workflow 8) to discover what wiki coverage is missing.
 2. **Back-fill module pages** (`wiki/modules/`) — one page per existing module/service/component, written from the live code.
 3. **Back-fill architecture pages** (`wiki/architecture/`) — describe the actual running system, not an aspirational design.
 4. **Write ADRs** for the top 3–5 most consequential past decisions that shaped the codebase. Use the standard ADR template.
 5. **Populate conventions** (`wiki/conventions/`) — document the coding patterns already in use so the AI follows them.
 6. **Register ADRs** in `wiki/decisions/registry.md` — prevents future number collisions.
 7. **Baseline `wiki/deviations.md`** — document any known gaps between the wiki and reality.
-8. **Start Phase 7** using the existing codebase as the source of truth, not the Phase 1–6 spec.
+8. **Begin development** using the existing codebase as the source of truth.
 
 > [!note] For brownfield projects, wiki/overview.md should be written from the actual system state, not the aspirational one. Mark any unverified claims as `(unverified — pending audit)`.
 
@@ -509,7 +538,7 @@ When your changes create orphans:
 - Don't remove pre-existing dead code unless asked.
 
 The test: Every changed line should trace directly to the user's request. This
-principle also bounds the Sync Gate (Workflow 10) — the Code-Wiki Mapping Table
+principle also bounds the Sync Gate (Workflow 9) — the Code-Wiki Mapping Table
 should only contain files you deliberately touched.
 
 #### 4. Goal-Driven Execution

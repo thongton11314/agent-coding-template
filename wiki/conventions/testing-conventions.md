@@ -12,8 +12,8 @@ status: draft
 # Testing Conventions
 
 > [!note] This is a stub page. The AI developer agent will populate it as
-> the test suite grows. Fill in each section during Phase 5 (Security, Quality,
-> and Operations) or Workflow 11 (Brownfield Onboarding).
+> the test suite grows. Fill in each section during
+> Workflow 11 (Brownfield Onboarding) or when the test strategy is defined.
 
 ## Test Strategy
 

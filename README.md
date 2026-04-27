@@ -30,21 +30,6 @@ In any AI chat inside your project, say:
 
 The AI runs the setup script → framework is installed → AI reads `AGENTS.md` → ready.
 
-### Supported AI Tools
-
-Once the framework files are in your project, the AI tool auto-detects its config:
-
-   | AI Tool | Config File | Auto-loaded? |
-   |---------|------------|:---:|
-   | GitHub Copilot | `.github/copilot-instructions.md` | Yes |
-   | OpenAI Codex | `AGENTS.md` | Yes |
-   | Claude Code | `CLAUDE.md` | Yes |
-   | Cursor | `.cursorrules` | Yes |
-   | Windsurf | `.windsurfrules` | Yes |
-   | Cline / Roo Code | `.clinerules` | Yes |
-
-All config files point to `AGENTS.md` as the single source of truth.
-
 ## How It Works
 
 ```mermaid
@@ -91,49 +76,86 @@ Two disciplines govern every agent action — defined in full in [`AGENTS.md`](A
 
 These principles apply to every workflow: before the change (Workflow 4), after the change (Workflow 5), and at every step of the Post-Change Pipeline.
 
-## Multi-Agent Orchestration Template
+## Agent Model
 
-The framework includes `framework-template.md` — a reusable specification template for building applications with a multi-agent pipeline. Eight specialized AI agents collaborate through 8 sequential phases:
+The framework uses a **single developer agent** with modular skills, not multiple specialized agents. This keeps the system generic and reusable across any project type.
 
-| Phase | Name | Lead Agent |
-|-------|------|-----------|
-| 1 | Product and Scope | Product Strategist |
-| 2 | UX and Design | UX/UI Designer |
-| 3 | Technical Architecture | Solution Architect |
-| 4 | Data and Integration | Data/API Integration Designer |
-| 5 | Security, Quality, and Ops | QA/Test Engineer |
-| 6 | Roadmap and Planning | Product Strategist |
-| 7 | Implementation and Validation | Full-Stack Engineer |
-| 8 | Documentation and README | Full-Stack Engineer |
+### Developer Agent Skills
 
-### How to Use the Template
+| Skill | Purpose |
+|-------|---------|
+| **Plan** | Read requirements, identify affected wiki pages, break work into tasks with verify steps |
+| **Implement** | Write code following conventions, match existing patterns, create tests |
+| **Test** | Run test suite, verify changes, fix failures |
+| **Wiki Sync** | Update wiki pages, run Sync Gate, maintain index/log/overview |
+| **Review** | Lint wiki, check code↔wiki consistency, flag contradictions |
+| **Commit** | Stage files, write structured commit messages, push to remote |
 
-1. Copy `framework-template.md` → rename for your project (e.g. `my-app-spec.md`)
-2. Replace all `{PLACEHOLDER}` tokens with your project-specific values
-3. Fill in `[CUSTOMIZE]` sections — leave `[FRAMEWORK]` sections as-is
-4. Place the completed spec in `raw/` (e.g. `raw/prompt.md`)
-5. Tell your AI: *"Read `raw/prompt.md` and start Phase 1"*
+### Exploration Agent
 
-The agents produce all deliverables as wiki artifacts, building a living specification that drives implementation in Phase 7.
+A read-only agent for searching the codebase and answering questions. It never modifies files, runs commands, or updates the wiki.
 
-### The Eight Agents
+## How to Integrate to Platform
 
-| # | Agent | Responsibility |
-|---|-------|---------------|
-| 0 | Orchestrator | Coordinates agents, enforces phase gates, resolves conflicts |
-| 1 | Product Strategist | Scope, priorities, tradeoffs, roadmap, risk |
-| 2 | UX/UI Designer | Layouts, flows, states, accessibility, design system |
-| 3 | Solution Architect | System design, APIs, security, tech stack (scored matrix) |
-| 4 | Full-Stack Engineer | Code implementation per wiki specs |
-| 5 | Data/API Integration | External APIs, domain calculations, data processing |
-| 6 | QA/Test Engineer | Test strategy, security model, release readiness |
-| 7 | Visual Test Agent | Browser-based visual testing via Playwright |
+The framework is **platform-agnostic**. `AGENTS.md` is the single source of truth — every platform config file points to it. Three platforms are supported out of the box:
 
-Each phase has **quality gates** and **cross-agent reviews** — no phase starts until the prior one passes.
+### VS Code (GitHub Copilot)
+
+Auto-detected via `.github/copilot-instructions.md` and custom agents in `.github/agents/`.
+
+**Files installed:**
+- `.github/copilot-instructions.md` — rules loaded on every Copilot interaction
+- `.github/agents/agent-developer.md` — developer agent with post-change pipeline
+- `.github/agents/explore.md` — read-only exploration agent
+
+**How to use:**
+1. Install the framework (see Quick Start)
+2. Open the project in VS Code with GitHub Copilot enabled
+3. Copilot automatically loads `.github/copilot-instructions.md`
+4. Use `@agent-developer` for code changes, `@explore` for read-only queries
+
+### Claude (Claude Code)
+
+Auto-detected via `CLAUDE.md` in the project root.
+
+**Files installed:**
+- `CLAUDE.md` — compact rules pointing to `AGENTS.md`
+
+**How to use:**
+1. Install the framework (see Quick Start)
+2. Open the project with Claude Code
+3. Claude automatically loads `CLAUDE.md` and follows the workflows in `AGENTS.md`
+
+### Codex (OpenAI)
+
+Auto-detected via `AGENTS.md` in the project root.
+
+**Files installed:**
+- `AGENTS.md` — the full schema (Codex reads this directly)
+
+**How to use:**
+1. Install the framework (see Quick Start)
+2. Open the project with Codex
+3. Codex reads `AGENTS.md` as the primary instruction file
+
+### Other Platforms
+
+Any AI tool that supports custom instructions can use this framework:
+
+1. Point the tool's instruction/config file to read `AGENTS.md`
+2. Add a one-line config file in the format your tool expects:
+   ```
+   Read `AGENTS.md` in full before every session.
+   ```
+3. The workflows, conventions, and principles all live in `AGENTS.md` — no platform-specific logic needed
 
 ## Structure
 
 ```
+src/                  # Application source code
+  frontend/           # UI code (when the app has a user interface)
+  backend/            # Server/API code (when the app has a server)
+  cli/                # CLI scripts (when the app has no backend server)
 raw/                  # Your source documents (immutable)
 wiki/                 # AI-maintained pages (don't edit manually)
   sources/            # Summaries of ingested documents
@@ -147,10 +169,20 @@ wiki/                 # AI-maintained pages (don't edit manually)
   index.md            # Master catalog of all pages
   log.md              # Chronological operation record
   overview.md         # High-level synthesis
+scripts/              # Setup, validation, and maintenance scripts
 AGENTS.md             # Schema — the single source of truth
-framework-template.md # Multi-agent orchestration template
-scripts/              # Validation and maintenance tools
 ```
+
+### Source Code Layout
+
+When the user requests application code, the agent creates subdirectories in `src/` based on the project type:
+
+- **Full-stack app** (UI + server) → `src/frontend/` + `src/backend/`
+- **API-only app** (server, no UI) → `src/backend/`
+- **Frontend-only app** (UI, no server) → `src/frontend/`
+- **CLI/script app** (no server, no UI) → `src/cli/`
+
+The setup script creates an empty `src/` directory. Subdirectories are created on demand.
 
 ## Key Commands
 
@@ -160,6 +192,7 @@ scripts/              # Validation and maintenance tools
 | Ask a question | "What does the wiki say about X?" |
 | Health check | "Lint the wiki" |
 | Create analysis | "Compare X and Y across sources" |
+| Brownfield onboard | "Run Workflow 11 to onboard this codebase" |
 
 ## Validation
 
@@ -179,7 +212,7 @@ Checks for: missing frontmatter, broken `[[wikilinks]]`, orphan pages, filename 
 
 ### Cleanup & Deprecation Sync
 
-As your codebase evolves — files deleted, modules renamed, patterns retired — the wiki must follow. This template bakes that into the agent's contract via **Workflow 11 (Deprecation & Cleanup Sync)** in [`AGENTS.md`](AGENTS.md).
+As your codebase evolves — files deleted, modules renamed, patterns retired — the wiki must follow. This is baked into the agent's contract via **Workflow 10 (Deprecation & Cleanup Sync)** in [`AGENTS.md`](AGENTS.md).
 
 **How it works:**
 
@@ -193,7 +226,7 @@ As your codebase evolves — files deleted, modules renamed, patterns retired �
   - `spec` — the page describes intended behavior before code exists.
   - `verified` — the page has been reconciled against shipped code.
   - `deprecated` / `superseded` — the page is kept as historical record, never deleted.
-- **Warn-only detection** — stale `source_paths` produce `[WARN]` output but do **not** fail validation. Deprecation is a deliberate, user-approved action (see AGENTS.md Workflow 11), not an automatic one.
+- **Warn-only detection** — stale `source_paths` produce `[WARN]` output but do **not** fail validation. Deprecation is a deliberate, user-approved action (see AGENTS.md Workflow 10), not an automatic one.
 - **Deprecation over deletion** — the agent never hard-deletes wiki pages. It flips `status`, adds a dated `> [!deprecated]` or `> [!breaking]` callout, and updates `wiki/index.md` + `wiki/log.md`.
 
 When you delete or rename code, ask the agent to "run the cleanup sync" — it will scan for affected pages, classify each (Relocated / Superseded / Deprecated / Still accurate), and present a proposal table for your approval before touching anything.
@@ -216,5 +249,4 @@ All conventions live in `AGENTS.md`. Modify it to:
 - Adjust workflows for your team's needs.
 - Add domain-specific conventions.
 
-The editor config files (`.cursorrules`, `CLAUDE.md`, etc.) all point to `AGENTS.md` — update once, works everywhere.
-
+All platform config files point to `AGENTS.md` — update once, works everywhere.
