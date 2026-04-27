@@ -28,6 +28,7 @@ Activate for any of these requests:
 - "refactor", "rename", "move", "clean up" → any code structure change
 - "update wiki", "update docs", "update README", "update architecture"
 - "add test", "write test", "generate test"
+- "clean wiki", "delete orphans", "prune wiki", "remove unused pages" → Wiki Cleanup (Clean Skill)
 - "update", "change", "modify", "edit" → any file in the codebase
 
 Only answer directly (without this pipeline) for pure read-only queries:

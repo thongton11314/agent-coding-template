@@ -42,6 +42,7 @@ The developer agent handles all code and wiki changes. It operates through six s
 | **Test** | Run test suite, verify changes, fix failures | Post-Change Pipeline Step 3 |
 | **Wiki Sync** | Update wiki pages, run Sync Gate, maintain index/log/overview | Post-Change Pipeline Steps 1–2 |
 | **Review** | Lint wiki, check code↔wiki consistency, flag contradictions | Workflow 8, Workflow 9 |
+| **Clean** | Safely delete orphan/deprecated/unused wiki pages | Workflow 8 (cleanup mode) |
 | **Commit** | Stage files, write structured commit messages, push to remote | Post-Change Pipeline Step 5 |
 
 The agent applies all skills in sequence during the Post-Change Pipeline. Skills are
@@ -310,9 +311,58 @@ When the user asks to lint or review the wiki:
    - Convention pages that don't match actual code patterns.
    - Missing or incomplete frontmatter fields.
    - Deprecated decisions still referenced as active.
+   - Pages with `status: deprecated` or `status: superseded`.
 2. **Report** findings as a checklist.
 3. **Fix** issues with user approval.
 4. **Append** to `wiki/log.md`.
+
+##### Wiki Cleanup (Clean Skill)
+
+When the user asks to "clean the wiki", "delete orphans", "remove unused pages",
+or "prune the wiki", run the cleanup procedure:
+
+1. **Run the lint scan** (steps above) to produce the full findings list.
+2. **Identify deletable pages** — a page is safe to delete only if ALL of these are true:
+   - It is an orphan (no inbound `[[wikilinks]]` from any active page), OR
+     it has `status: deprecated` or `status: superseded`.
+   - It is NOT one of the protected pages: `index`, `log`, `overview`, `deviations`, `registry`.
+   - It is NOT referenced by any file in `src/`, `scripts/`, or root config files.
+   - No active (non-deprecated) wiki page depends on it via `related:` frontmatter.
+3. **Present the Cleanup Proposal Table** to the user:
+
+```markdown
+| Page | Path | Reason | Safe to Delete? |
+|------|------|--------|-----------------|
+| page-name | wiki/category/page-name.md | orphan / deprecated / superseded | ✅ / ❌ (reason) |
+```
+
+4. **Wait for approval.** Never delete without explicit user confirmation.
+5. **Delete approved pages** from disk.
+6. **Scrub references** to deleted pages:
+   - Remove rows from `wiki/index.md`.
+   - Remove from `related:` frontmatter arrays in any remaining pages.
+   - Remove broken `[[wikilinks]]` in body text of remaining pages.
+7. **Run `scripts/validate-wiki.ps1`** (or `.sh`) to confirm no broken links remain.
+8. **Append** a cleanup entry to `wiki/log.md`:
+
+```markdown
+## [YYYY-MM-DD] clean | Wiki Cleanup
+- **Operation**: clean
+- **Pages deleted**: page1, page2, ...
+- **Summary**: Removed N orphan/deprecated pages. No active references broken.
+```
+
+##### Safety Rules
+
+- **Never delete pages that active code depends on.** If `source_paths` in any active
+  module page references a path, the module page is not deletable.
+- **Never delete without the proposal table.** The user must see exactly what will
+  be removed and confirm.
+- **Re-validate after deletion.** The final `validate-wiki` run is mandatory — if
+  it fails, undo the deletion and report the issue.
+- **Log everything.** Every deletion is recorded in `wiki/log.md`.
+- **This skill only removes wiki pages.** It never deletes source code, scripts,
+  config files, or raw/ documents.
 
 #### 9. Sync Gate (Bidirectional Verification)
 
