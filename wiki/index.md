@@ -2,7 +2,7 @@
 title: "Wiki Index"
 type: overview
 created: 2026-04-13
-updated: 2026-04-27
+updated: 2026-04-28
 tags: [index, navigation]
 sources: []
 status: active
@@ -13,6 +13,14 @@ status: active
 Master catalog of all pages in this wiki. Updated on every operation.
 
 ---
+
+## Core
+
+| Page | Summary | Updated |
+|------|---------|---------|
+| [[overview]] | High-level synthesis of the project knowledge and system state | 2026-04-13 |
+| [[log]] | Chronological record of all wiki operations | 2026-04-13 |
+| [[deviations]] | Audit trail of spec-vs-code divergences (Sync Gate Workflow 9) | 2026-04-15 |
 
 ## Sources
 
@@ -64,8 +72,3 @@ Master catalog of all pages in this wiki. Updated on every operation.
 |------|---------|-------|---------|
 | [[coding-conventions]] | Stub — fill in language, style, error handling, logging conventions | codebase-wide | 2026-04-15 |
 | [[testing-conventions]] | Stub — fill in test runner, naming, fixture patterns, coverage target | codebase-wide | 2026-04-15 |
-## Maintenance
-
-| Page | Summary | Updated |
-|------|---------|--------|
-| [[deviations]] | Audit trail of spec-vs-code divergences (Sync Gate Workflow 9) | 2026-04-15 |

@@ -1,8 +1,8 @@
 ---
 title: "Testing Conventions"
 type: convention
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
+created: 2026-04-13
+updated: 2026-04-13
 tags: [conventions, testing, quality]
 sources: []
 related: [coding-conventions]
