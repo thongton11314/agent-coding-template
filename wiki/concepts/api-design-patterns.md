@@ -4,7 +4,7 @@ type: concept
 created: 2026-04-13
 updated: 2026-04-13
 tags: [api, patterns, conventions]
-sources: [rest-api-design-best-practices.md]
+sources: [rest-api-design-best-practices]
 related: [rest, http-status-codes]
 status: active
 ---
