@@ -26,11 +26,30 @@ $PreCommitPath = Join-Path $HooksDir "pre-commit"
 
 $PreCommitContent = @'
 #!/bin/sh
-# AI Development Framework — pre-commit wiki validation
+# AI Development Framework — pre-commit validation
 #
-# Runs validate-wiki.ps1 (if PowerShell is available) before every commit.
+# 1. Enforces commit author identity.
+# 2. Runs validate-wiki.ps1 wiki validation.
 # To bypass in an emergency: git commit --no-verify (use sparingly)
 
+# ── Identity check ───────────────────────────────────────────
+EXPECTED_NAME="thongton11314"
+EXPECTED_EMAIL="thong11314@gmail.com"
+ACTUAL_NAME=$(git config user.name)
+ACTUAL_EMAIL=$(git config user.email)
+
+if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ] || [ "$ACTUAL_EMAIL" != "$EXPECTED_EMAIL" ]; then
+    echo "[identity-check] ERROR: Commit author not allowed."
+    echo "  Expected: $EXPECTED_NAME <$EXPECTED_EMAIL>"
+    echo "  Got:      $ACTUAL_NAME <$ACTUAL_EMAIL>"
+    echo ""
+    echo "  Fix with:"
+    echo "    git config user.name \"$EXPECTED_NAME\""
+    echo "    git config user.email \"$EXPECTED_EMAIL\""
+    exit 1
+fi
+
+# ── Wiki validation ──────────────────────────────────────────
 SCRIPT="scripts/validate-wiki.ps1"
 
 if [ ! -f "$SCRIPT" ]; then

@@ -55,3 +55,46 @@ jobs:
       # ── PLACEHOLDER — remove this echo once you add real test steps ──
       - name: "[PLACEHOLDER] Add your test command here"
         run: echo "No tests configured yet. See .github/workflows/ci.yml for examples."
+
+  # ──────────────────────────────────────────────
+  # Job 3: Enforce commit author identity
+  # ──────────────────────────────────────────────
+  enforce-author:
+    name: Enforce Author Identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check all commit authors in push/PR
+        run: |
+          EXPECTED_NAME="thongton11314"
+          EXPECTED_EMAIL="thong11314@gmail.com"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            # New branch — check only HEAD commit
+            RANGE="-1"
+          else
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          fi
+
+          FAIL=0
+          while IFS='|' read -r name email; do
+            [ -z "$name" ] && continue
+            if [ "$name" != "$EXPECTED_NAME" ] || [ "$email" != "$EXPECTED_EMAIL" ]; then
+              echo "ERROR: Unauthorized commit author: $name <$email>"
+              FAIL=1
+            fi
+          done <<< "$(git log --format="%an|%ae" $RANGE)"
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "Only $EXPECTED_NAME <$EXPECTED_EMAIL> may commit to this repository."
+            echo "Fix with: git config user.name \"$EXPECTED_NAME\" && git config user.email \"$EXPECTED_EMAIL\""
+            exit 1
+          fi
+
+          echo "All commits are authored by $EXPECTED_NAME <$EXPECTED_EMAIL>."
