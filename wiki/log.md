@@ -58,3 +58,7 @@ Chronological record of all wiki operations. Append-only.
 - **Operation**: update
 - **Pages touched**: [[log]]
 - **Summary**: Closed real gap surfaced by agent-explorer test invocation: routing rules in AGENTS.md/CLAUDE.md/.github/copilot-instructions.md name `tests/` and `config/` as developer-agent triggers, but the canonical Directory Structure block in AGENTS.md (and the mirrored block in README.md) did not list them. Added both directories with "(created on demand)" notes, matching the existing on-demand pattern for `src/frontend/`, `src/backend/`, `src/cli/`. No code change. validate-wiki.ps1: all checks pass. Both agent file pairs (agent-developer, agent-explorer) verified byte-identical via SHA256.
+## [2026-05-05] update | Mirror tests/ and config/ into wiki/overview.md
+- **Operation**: update
+- **Pages touched**: [[overview]], [[log]]
+- **Summary**: User noted tests/ and config/ were added to AGENTS.md and README.md Directory Structure blocks but not reflected in wiki/overview.md System Architecture section. Updated overview.md to name tests/ and config/ as on-demand sibling top-level directories alongside src/. validate-wiki.ps1 still passes.

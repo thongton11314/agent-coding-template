@@ -42,7 +42,7 @@ The agent model uses a single developer agent with seven skills:
 - **Clean** — safely delete orphan/deprecated/unused wiki pages (Workflow 8 cleanup mode)
 - **Commit** — stage, commit, push
 
-Source code is organized in `src/` with `frontend/`, `backend/`, or `cli/` subdirectories based on project type.
+Source code is organized in `src/` with `frontend/`, `backend/`, or `cli/` subdirectories based on project type. Sibling top-level directories `tests/` (automated tests) and `config/` (application/runtime configuration) are created on demand alongside `src/` when the agent first needs them.
 
 ## Active Conventions
 
