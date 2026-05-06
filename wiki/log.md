@@ -43,3 +43,8 @@ Chronological record of all wiki operations. Append-only.
 - **Operation**: update
 - **Pages touched**: [[log]]
 - **Summary**: Replaced README "How to Integrate to Platform" with expanded "Platform Integrations" section. Added cross-platform comparison table (entry-point + subagent dir + dispatch model + auto-detection) covering VS Code, Claude Code, and Codex. Added a unified install snippet (one setup command installs all three platforms' files), per-platform "verify it's working" prompts, and a link to ADR-001 explaining why Codex uses a single-file inlined-routing layout vs. mirrored subagents on the other two. Documentation-only change; no agent behavior modified.
+
+## [2026-05-05] update | Consistency Audit Fixes
+- **Operation**: update
+- **Pages touched**: [[overview]], [[index]], [[log]]
+- **Summary**: Fixed 6 documentation/script-parity drifts surfaced by audit. (1) Added 'clean wiki' trigger to .github/copilot-instructions.md. (2) Ported source_paths warn-only check from validate-wiki.sh to validate-wiki.ps1. (3) overview.md: 6 skills -> 7 (added Clean). (4) README.md: added Clean row to skills table. (5) setup.sh: fixed broken 'bash setup-hooks.ps1' next-step. (6) Both agent-developer.md description fields aligned to canonical wording (src/, tests/, wiki/, config/, or scripts/). No system behavior change. validate-wiki.ps1: all checks pass.

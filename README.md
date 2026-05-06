@@ -89,6 +89,7 @@ The framework uses a **single developer agent** with modular skills, not multipl
 | **Test** | Run test suite, verify changes, fix failures |
 | **Wiki Sync** | Update wiki pages, run Sync Gate, maintain index/log/overview |
 | **Review** | Lint wiki, check code↔wiki consistency, flag contradictions |
+| **Clean** | Safely delete orphan/deprecated/unused wiki pages (Workflow 8 cleanup mode) |
 | **Commit** | Stage files, write structured commit messages, push to remote |
 
 ### Exploration Agent

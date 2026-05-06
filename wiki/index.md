@@ -18,7 +18,7 @@ Master catalog of all pages in this wiki. Updated on every operation.
 
 | Page | Summary | Updated |
 |------|---------|---------|
-| [[overview]] | High-level synthesis of the project knowledge and system state | 2026-04-13 |
+| [[overview]] | High-level synthesis of the project knowledge and system state | 2026-05-05 |
 | [[log]] | Chronological record of all wiki operations | 2026-04-13 |
 | [[deviations]] | Audit trail of spec-vs-code divergences (Sync Gate Workflow 9) | 2026-04-15 |
 

@@ -184,6 +184,60 @@ function Check-RelatedField {
     return $issues
 }
 
+# --- Check: Source Paths (warn-only) ---
+# Detects stale `source_paths:` entries pointing to files removed/moved in the repo.
+# Emits warnings (non-fatal) to power the Deprecation & Cleanup Sync workflow.
+function Check-SourcePaths {
+    param($Pages)
+    $issues = @()
+    $repoRoot = (Resolve-Path (Join-Path $WikiDir "..")).Path
+    foreach ($entry in $Pages.GetEnumerator()) {
+        $parsed = Parse-Frontmatter $entry.Value
+        if ($null -eq $parsed.Frontmatter) { continue }
+
+        # source_paths may be inline `[a, b]` or a YAML block list (`- item` lines).
+        # Inline form is captured by Parse-Frontmatter; block form is not, so re-parse from raw.
+        $raw = $parsed.Content
+        $items = @()
+        if ($parsed.Frontmatter.ContainsKey("source_paths")) {
+            $val = $parsed.Frontmatter["source_paths"]
+            if ($val -match '^\[(.*)\]$') {
+                $items = $Matches[1] -split ',\s*'
+            }
+        }
+        # Block form: parse only inside the frontmatter (between the two `---` markers).
+        if ($raw -match '(?s)^---\s*\r?\n(.*?)\r?\n---') {
+            $fmBlock = $Matches[1]
+            $lines = $fmBlock -split '\r?\n'
+            $inList = $false
+            foreach ($line in $lines) {
+                if ($line -match '^source_paths:\s*$') {
+                    $inList = $true
+                    continue
+                }
+                if ($inList) {
+                    if ($line -match '^\s+-\s+(.+?)\s*$') {
+                        $items += $Matches[1]
+                    } else {
+                        $inList = $false
+                    }
+                }
+            }
+        }
+
+        foreach ($item in $items) {
+            $item = $item.Trim().Trim('"').Trim("'")
+            if (-not $item) { continue }
+            $full = Join-Path $repoRoot $item
+            if (-not (Test-Path $full)) {
+                $rel = Get-RelativePath $entry.Value
+                $issues += "  STALE source_path '$item' in $rel (code removed or moved)"
+            }
+        }
+    }
+    return $issues
+}
+
 # --- Main ---
 
 $pages = Get-WikiPages
@@ -194,6 +248,7 @@ $checks = @(
     @{ Name = "Filenames";       Fn = { Check-Filenames $pages } }
     @{ Name = "Wikilinks";       Fn = { Check-Wikilinks $pages } }
     @{ Name = "Related Fields";  Fn = { Check-RelatedField $pages } }
+    @{ Name = "Source Paths";    Fn = { Check-SourcePaths $pages }; Warn = $true }
     @{ Name = "Orphans";         Fn = { Check-Orphans $pages } }
     @{ Name = "Index Coverage";  Fn = { Check-IndexCoverage $pages } }
 )
@@ -222,9 +277,14 @@ foreach ($check in $checks) {
 }
 
 Write-Host "`n$('=' * 40)"
-if ($totalIssues -eq 0) {
+if ($totalIssues -eq 0 -and $totalWarnings -eq 0) {
     Write-Host "All checks passed." -ForegroundColor Green
+} elseif ($totalIssues -eq 0) {
+    Write-Host "$totalWarnings warning(s) found (non-fatal)." -ForegroundColor Yellow
 } else {
     Write-Host "$totalIssues issue(s) found." -ForegroundColor Red
+    if ($totalWarnings -gt 0) {
+        Write-Host "$totalWarnings warning(s) found (non-fatal)." -ForegroundColor Yellow
+    }
 }
 exit ([int]($totalIssues -gt 0))

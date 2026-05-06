@@ -15,6 +15,7 @@ Triggers (non-exhaustive):
 - "refactor", "rename", "move", "clean up" → any code structure change
 - "update wiki", "update docs", "update README", "update architecture"
 - "add test", "write test", "generate test"
+- "clean wiki", "delete orphans", "prune wiki", "remove unused pages"
 - "update", "change", "modify", "edit" → any file in the codebase
 
 For **read-only exploration** — "what does X do?", "where is Y?", "find all Z",

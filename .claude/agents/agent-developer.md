@@ -3,7 +3,7 @@ name: agent-developer
 description: >
   Use when making any code change — adding features, fixing bugs, refactoring,
   updating modules, editing configuration, or changing any file in src/, tests/,
-  src/frontend/, config/, scripts/, or wiki/. Enforces the full post-change pipeline:
+  wiki/, config/, or scripts/. Enforces the full post-change pipeline:
   wiki update → sync gate → tests → README → git push.
 tools:
   - read_file

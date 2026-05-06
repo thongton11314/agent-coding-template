@@ -2,7 +2,7 @@
 title: "Overview"
 type: overview
 created: 2026-04-13
-updated: 2026-04-27
+updated: 2026-05-05
 tags: [overview, synthesis]
 sources: []
 status: active
@@ -18,7 +18,7 @@ High-level synthesis across all knowledge and the codebase. This page evolves as
 
 The framework provides two core capabilities:
 1. **Knowledge management** — ingest sources into a structured wiki with cross-references.
-2. **AI-assisted development** — a single developer agent with modular skills (plan, implement, test, wiki-sync, review, commit) enforces the Post-Change Pipeline on every code change.
+2. **AI-assisted development** — a single developer agent with modular skills (plan, implement, test, wiki-sync, review, clean, commit) enforces the Post-Change Pipeline on every code change.
 
 One source ingested covering REST API design conventions.
 
@@ -33,12 +33,13 @@ One source ingested covering REST API design conventions.
 
 ## System Architecture
 
-The agent model uses a single developer agent with six skills:
+The agent model uses a single developer agent with seven skills:
 - **Plan** — read requirements, break into tasks
 - **Implement** — write code following conventions
 - **Test** — run and write tests
 - **Wiki Sync** — maintain wiki, run Sync Gate
 - **Review** — lint wiki, check consistency
+- **Clean** — safely delete orphan/deprecated/unused wiki pages (Workflow 8 cleanup mode)
 - **Commit** — stage, commit, push
 
 Source code is organized in `src/` with `frontend/`, `backend/`, or `cli/` subdirectories based on project type.
