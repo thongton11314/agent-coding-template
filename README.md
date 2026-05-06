@@ -95,63 +95,99 @@ The framework uses a **single developer agent** with modular skills, not multipl
 
 A read-only agent for searching the codebase and answering questions. It never modifies files, runs commands, or updates the wiki.
 
-## How to Integrate to Platform
+## Platform Integrations
 
-The framework is **platform-agnostic**. `AGENTS.md` is the single source of truth — every platform config file points to it. Three platforms are supported out of the box:
+The framework is **platform-agnostic**. [`AGENTS.md`](AGENTS.md) is the single source of truth — every platform-specific config file either delegates to it or duplicates its contract verbatim. The same triggers, the same Post-Change Pipeline, and the same read-only Exploration mode run on every platform; only the dispatch mechanism differs.
+
+### Cross-Platform Comparison
+
+| Platform | Root entry-point | Subagent directory | Dispatch model | Auto-detected? |
+|----------|------------------|--------------------|----------------|----------------|
+| **VS Code (GitHub Copilot)** | [.github/copilot-instructions.md](.github/copilot-instructions.md) | `.github/agents/` | Native subagents (`@agent-developer`, `@explore`) | Yes — on workspace open |
+| **Claude Code** | [CLAUDE.md](CLAUDE.md) | `.claude/agents/` | Native subagents (Task tool / by name) | Yes — on session start |
+| **Codex (OpenAI CLI)** | [AGENTS.md](AGENTS.md) | *(none — single-agent)* | Behavioral-mode switch inlined in `AGENTS.md` | Yes — reads `AGENTS.md` at repo root |
+
+> Why three layouts for one framework? Codex has no native subagent file convention — it only reads `AGENTS.md` at the repo root. So Codex gets the agent contract inlined as a behavioral switch, while VS Code and Claude Code get mirrored subagent files. The behavior is identical across all three. See [ADR-001](wiki/decisions/adr-001-cross-platform-agent-orchestration.md) for the design rationale.
+
+### Install (all platforms)
+
+The setup script installs every platform's files in one pass. Run it once and the project works in VS Code, Claude Code, and Codex simultaneously.
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/thongton11314/agent-coding-template/main/scripts/setup.ps1 | iex
+```
+
+**Linux / macOS (Bash):**
+```bash
+curl -sL https://raw.githubusercontent.com/thongton11314/agent-coding-template/main/scripts/setup.sh | bash
+```
+
+The script is idempotent — files that already exist are skipped, so it's safe to re-run.
+
+---
 
 ### VS Code (GitHub Copilot)
 
-Auto-detected via `.github/copilot-instructions.md` and custom agents in `.github/agents/`.
-
 **Files installed:**
-- `.github/copilot-instructions.md` — rules loaded on every Copilot interaction
-- `.github/agents/agent-developer.md` — developer agent with post-change pipeline
-- `.github/agents/explore.md` — read-only exploration agent
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) — loaded on every Copilot interaction; routes to subagents
+- `.github/agents/agent-developer.md` — developer subagent (full Post-Change Pipeline)
+- `.github/agents/explore.md` — read-only exploration subagent
 
 **How to use:**
-1. Install the framework (see Quick Start)
-2. Open the project in VS Code with GitHub Copilot enabled
-3. Copilot automatically loads `.github/copilot-instructions.md`
-4. Use `@agent-developer` for code changes, `@explore` for read-only queries
+1. Install the framework (see Quick Start or the install command above).
+2. Open the project in VS Code with GitHub Copilot enabled.
+3. Copilot auto-loads `.github/copilot-instructions.md` on workspace open.
+4. Use `@agent-developer` for any code/wiki change, `@explore` for read-only queries. Plain chat messages are also auto-routed by the rules in `copilot-instructions.md`.
 
-### Claude (Claude Code)
+**Verify it's working:** ask Copilot Chat *"what is the post-change pipeline?"* — it should answer from `AGENTS.md` without searching the web.
 
-Auto-detected via `CLAUDE.md` in the project root, with subagents in `.claude/agents/`.
+---
+
+### Claude Code
 
 **Files installed:**
-- `CLAUDE.md` — routing rules (delegate to subagents) + post-change pipeline + core rules
-- `.claude/agents/agent-developer.md` — developer subagent with the post-change pipeline
+- [CLAUDE.md](CLAUDE.md) — root entry-point; delegates to `.claude/agents/`
+- `.claude/agents/agent-developer.md` — developer subagent (byte-identical mirror of `.github/agents/agent-developer.md`)
 - `.claude/agents/explore.md` — read-only exploration subagent
 
 **How to use:**
-1. Install the framework (see Quick Start)
-2. Open the project with Claude Code
-3. Claude Code automatically loads `CLAUDE.md` and discovers subagents in `.claude/agents/`
-4. Code-change requests delegate to the `agent-developer` subagent; read-only queries delegate to the `Explore` subagent — same triggers and pipeline as the VS Code Copilot path
+1. Install the framework.
+2. Open the project with Claude Code (`claude` CLI or Claude Desktop project mode).
+3. Claude Code auto-loads `CLAUDE.md` and discovers subagents under `.claude/agents/`.
+4. Code-change requests delegate to `agent-developer`; read-only queries delegate to `Explore`. Invoke explicitly with *"use the agent-developer subagent to ..."* or via the Task tool.
 
-### Codex (OpenAI)
+**Verify it's working:** ask *"which subagent handles bug fixes?"* — it should name `agent-developer` and cite the routing rules from `CLAUDE.md`.
 
-Auto-detected via `AGENTS.md` in the project root.
+---
+
+### Codex (OpenAI Codex CLI)
 
 **Files installed:**
-- `AGENTS.md` — the full schema (Codex reads this directly)
+- [AGENTS.md](AGENTS.md) — the full schema. Codex reads this directly; no separate subagent files.
 
 **How to use:**
-1. Install the framework (see Quick Start)
-2. Open the project with Codex
-3. Codex reads `AGENTS.md` as the primary instruction file
-4. Codex is single-agent — the `Agent Routing — FIRST RULE` at the top of `AGENTS.md` switches it between Developer Agent (full post-change pipeline) and Exploration Agent (read-only) behavior modes based on the request. Same triggers as the VS Code Copilot and Claude Code paths.
+1. Install the framework.
+2. Open the project with Codex (`codex` CLI in the repo root).
+3. Codex automatically reads `AGENTS.md` as the primary instruction file.
+4. Codex runs as a single agent. The **Agent Routing — FIRST RULE** at the top of `AGENTS.md` switches it between **Developer Agent mode** (full Post-Change Pipeline) and **Exploration Agent mode** (read-only) based on the request's trigger words. Same triggers as VS Code and Claude Code.
+
+**Verify it's working:** ask *"what should you do before any code change?"* — it should walk through the Pre-Change Checklist from `AGENTS.md` Workflow 4.
+
+---
 
 ### Other Platforms
 
-Any AI tool that supports custom instructions can use this framework:
+Any AI tool that supports custom instructions can adopt this framework:
 
-1. Point the tool's instruction/config file to read `AGENTS.md`
-2. Add a one-line config file in the format your tool expects:
+1. Point the tool's instruction/config file at `AGENTS.md`. Most tools accept a one-liner like:
    ```
-   Read `AGENTS.md` in full before every session.
+   Read AGENTS.md in full before every session. Apply its Agent Routing — FIRST RULE.
    ```
-3. The workflows, conventions, and principles all live in `AGENTS.md` — no platform-specific logic needed
+2. If the tool supports subagents, mirror `.github/agents/agent-developer.md` and `.github/agents/explore.md` into the tool's expected directory.
+3. If the tool is single-agent (like Codex), no extra files are needed — the routing rule inside `AGENTS.md` handles the mode switch.
+
+All workflows, conventions, and principles live in `AGENTS.md` — no platform-specific logic to port.
 
 ## Structure
 

@@ -38,3 +38,8 @@ Chronological record of all wiki operations. Append-only.
 - **Operation**: update
 - **Pages touched**: [[adr-001-cross-platform-agent-orchestration]], [[registry]], [[index]], [[log]]
 - **Summary**: Added agent-routing FIRST RULE to AGENTS.md (behavioral-mode switch for Codex/single-agent platforms). Rewrote CLAUDE.md to mirror copilot-instructions.md (delegates to subagents in `.claude/agents/`). Created `.claude/agents/agent-developer.md` and `.claude/agents/explore.md` as byte-identical ports of their `.github/agents/` counterparts. Updated `scripts/setup.ps1` and `scripts/setup.sh` to install the new files. Updated README.md "How to Integrate to Platform" for Claude Code (subagent files) and Codex (behavioral-mode model). Recorded ADR-001 documenting the per-platform routing decision. No system-behavior change.
+
+## [2026-05-05] update | README Platform Integrations Section
+- **Operation**: update
+- **Pages touched**: [[log]]
+- **Summary**: Replaced README "How to Integrate to Platform" with expanded "Platform Integrations" section. Added cross-platform comparison table (entry-point + subagent dir + dispatch model + auto-detection) covering VS Code, Claude Code, and Codex. Added a unified install snippet (one setup command installs all three platforms' files), per-platform "verify it's working" prompts, and a link to ADR-001 explaining why Codex uses a single-file inlined-routing layout vs. mirrored subagents on the other two. Documentation-only change; no agent behavior modified.
