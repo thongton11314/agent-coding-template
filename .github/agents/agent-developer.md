@@ -45,7 +45,13 @@ Before writing any code:
 1. Read `wiki/index.md` to locate relevant module, architecture, decision, and convention pages.
 2. Read those pages to understand existing contracts, patterns, and decisions.
 3. Identify all files that will be touched and their wiki page mappings.
-4. If the change conflicts with a documented convention or decision, flag it to the
+4. **Apply Coding Discipline P1 — Think Before Coding.** Name the interpretation
+   you're acting on, state assumptions explicitly, and ask for clarification rather
+   than guessing. For multi-step work, also draft a P4 plan in the format
+   `N. [Step] → verify: [check]` before writing code.
+5. **If context is insufficient, invoke `agent-explorer` as a subagent before
+   proceeding.** Never guess at codebase state — search and read first.
+6. If the change conflicts with a documented convention or decision, flag it to the
    user before proceeding.
 
 ---

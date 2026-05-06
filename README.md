@@ -253,6 +253,29 @@ bash scripts/validate-wiki.sh
 
 Checks for: missing frontmatter, broken `[[wikilinks]]`, orphan pages, filename conventions, index coverage, and stale `source_paths` (warning only).
 
+### System Consistency Check
+
+A second script catches **cross-file drift** that wiki validation can't see — the
+classes of bug surfaced by past consistency audits:
+
+```powershell
+pwsh scripts/check-system-consistency.ps1
+```
+
+It verifies:
+
+1. **Agent file pair byte-identity** — `.github/agents/*` and `.claude/agents/*` must be identical (per ADR-001).
+2. **Routing path-list parity** — the `` `src/`, `tests/`, `wiki/`, ... `` list in `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` must match.
+3. **Trigger-list parity** — same number of routing triggers in those three entry-point files.
+4. **Directory-structure coverage** — every directory named in routing rules must appear in `AGENTS.md` Directory Structure.
+5. **Skill-table parity** — the Developer Agent Skills table in `AGENTS.md` and `README.md` must have the same row count.
+
+Both scripts are wired into:
+- The pre-commit hook installed by `scripts/setup-hooks.ps1` (blocks bad commits locally).
+- The `wiki-lint` CI job in `.github/workflows/ci.yml` (blocks bad PRs).
+
+This is the prevention mechanism for the kind of documentation drift that prior audits had to catch by hand.
+
 ### Cleanup & Deprecation Sync
 
 As your codebase evolves — files deleted, modules renamed, patterns retired — the wiki must follow. This is baked into the agent's contract via **Workflow 10 (Deprecation & Cleanup Sync)** in [`AGENTS.md`](AGENTS.md).

@@ -72,6 +72,7 @@ $Files = @(
     "raw\README.md"
     "scripts\validate-wiki.ps1"
     "scripts\validate-wiki.sh"
+    "scripts\check-system-consistency.ps1"
     "scripts\setup-hooks.ps1"
 )
 

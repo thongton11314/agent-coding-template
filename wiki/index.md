@@ -66,6 +66,7 @@ Master catalog of all pages in this wiki. Updated on every operation.
 |------|---------|--------|---------|
 | [[registry]] | ADR number registry — prevents duplicate ADR numbers | active | 2026-05-05 |
 | [[adr-001-cross-platform-agent-orchestration]] | Per-platform routing files (Copilot, Claude Code, Codex) mirroring native subagent conventions | active | 2026-05-05 |
+| [[adr-002-automated-system-consistency-checks]] | Drift-prevention script wired into pre-commit + CI | active | 2026-05-05 |
 
 ## Conventions
 

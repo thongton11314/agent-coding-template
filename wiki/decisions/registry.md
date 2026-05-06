@@ -17,6 +17,7 @@ a new ADR is created to prevent number collisions.
 | Number | Title | Status | Date | Page |
 |--------|-------|--------|------|------|
 | 001 | Cross-Platform Agent Orchestration | active | 2026-05-05 | [[adr-001-cross-platform-agent-orchestration]] |
+| 002 | Automated System Consistency Checks | active | 2026-05-05 | [[adr-002-automated-system-consistency-checks]] |
 
 ---
 

@@ -58,21 +58,35 @@ if [ ! -f "$SCRIPT" ]; then
 fi
 
 if command -v pwsh >/dev/null 2>&1; then
-    pwsh "$SCRIPT"
-    STATUS=$?
+    PWSH_CMD="pwsh"
 elif command -v powershell >/dev/null 2>&1; then
-    powershell -File "$SCRIPT"
-    STATUS=$?
+    PWSH_CMD="powershell -File"
 else
-    echo "[wiki-check] PowerShell not found — skipping wiki validation."
+    echo "[wiki-check] PowerShell not found — skipping wiki + system consistency checks."
     exit 0
 fi
+
+$PWSH_CMD "$SCRIPT"
+STATUS=$?
 
 if [ $STATUS -ne 0 ]; then
     echo ""
     echo "[wiki-check] Wiki validation failed. Fix issues above before committing."
     echo "             To bypass (use sparingly): git commit --no-verify"
     exit 1
+fi
+
+# ── System consistency check ─────────────────────────────────
+SYS_SCRIPT="scripts/check-system-consistency.ps1"
+if [ -f "$SYS_SCRIPT" ]; then
+    $PWSH_CMD "$SYS_SCRIPT"
+    SYS_STATUS=$?
+    if [ $SYS_STATUS -ne 0 ]; then
+        echo ""
+        echo "[system-check] System consistency check failed. Fix issues above before committing."
+        echo "               To bypass (use sparingly): git commit --no-verify"
+        exit 1
+    fi
 fi
 
 exit 0
@@ -87,6 +101,6 @@ if ($IsLinux -or $IsMacOS) {
 
 Write-Host "[OK] pre-commit hook installed: $PreCommitPath" -ForegroundColor Green
 Write-Host ""
-Write-Host "The hook runs 'scripts/validate-wiki.ps1' before every commit."
+Write-Host "The hook runs 'scripts/validate-wiki.ps1' and 'scripts/check-system-consistency.ps1' before every commit."
 Write-Host "To bypass in an emergency: git commit --no-verify"
 Write-Host ""

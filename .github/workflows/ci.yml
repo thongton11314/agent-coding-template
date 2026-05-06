@@ -24,6 +24,9 @@ jobs:
       - name: Run wiki validation
         run: pwsh scripts/validate-wiki.ps1
 
+      - name: Run system consistency check
+        run: pwsh scripts/check-system-consistency.ps1
+
   # ──────────────────────────────────────────────
   # Job 2: Project tests (customize per tech stack)
   # ──────────────────────────────────────────────
