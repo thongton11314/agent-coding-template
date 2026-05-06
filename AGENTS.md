@@ -5,6 +5,51 @@ Read this file at the start of every session.
 
 ---
 
+## Agent Routing — FIRST RULE
+
+This file is the canonical schema for **every AI platform** running this framework
+(Codex, Claude Code, GitHub Copilot, and any other tool that loads this file). Before
+doing anything else, classify the request and operate in the matching mode.
+
+**For any request that involves creating features, fixing bugs, refactoring code,
+modifying modules, updating the wiki, adding tests, editing configuration, or
+changing any file in `src/`, `tests/`, `wiki/`, `config/`, or `scripts/`
+— operate as the Developer Agent and execute the full Post-Change Pipeline
+(see "Development Discipline Protocols" below).**
+
+Apply this routing automatically. Do not ask the user whether to use it.
+
+Triggers (non-exhaustive):
+- "add", "create", "implement", "build" → any code or feature
+- "fix", "debug", "patch", "resolve" → any bug or error
+- "refactor", "rename", "move", "clean up" → any code structure change
+- "update wiki", "update docs", "update README", "update architecture"
+- "add test", "write test", "generate test"
+- "clean wiki", "delete orphans", "prune wiki", "remove unused pages"
+- "update", "change", "modify", "edit" → any file in the codebase
+
+For **read-only exploration** — "what does X do?", "where is Y?", "find all Z",
+"show me W" — operate as the Exploration Agent (read-only; never modify files,
+run commands, or update the wiki).
+
+Only answer directly (without entering either mode) for pure conceptual questions
+that require no file access.
+
+> **Platform mapping.** On platforms with native subagent systems (GitHub Copilot,
+> Claude Code), "operate as" means **delegate** to the corresponding subagent file
+> (`.github/agents/agent-developer.md` + `.github/agents/explore.md` for Copilot;
+> `.claude/agents/agent-developer.md` + `.claude/agents/explore.md` for Claude Code).
+> On single-agent platforms (Codex, or any tool that reads only this file), "operate
+> as" means **apply that agent's behavioral contract directly** — the same triggers,
+> the same Pre-Change Checklist, the same Post-Change Pipeline, the same read-only
+> guarantees for exploration. The behavior is identical; only the dispatch mechanism
+> differs.
+
+The full agent contracts are defined in [Agent Model](#agent-model) and
+[Development Discipline Protocols](#development-discipline-protocols) below.
+
+---
+
 ## Purpose
 
 This framework provides **persistent context** for AI-assisted development. It combines:

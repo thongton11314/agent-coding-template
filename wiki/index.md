@@ -2,7 +2,7 @@
 title: "Wiki Index"
 type: overview
 created: 2026-04-13
-updated: 2026-04-28
+updated: 2026-05-05
 tags: [index, navigation]
 sources: []
 status: active
@@ -64,7 +64,8 @@ Master catalog of all pages in this wiki. Updated on every operation.
 
 | Page | Summary | Status | Updated |
 |------|---------|--------|---------|
-| [[registry]] | ADR number registry — prevents duplicate ADR numbers | active | 2026-04-15 |
+| [[registry]] | ADR number registry — prevents duplicate ADR numbers | active | 2026-05-05 |
+| [[adr-001-cross-platform-agent-orchestration]] | Per-platform routing files (Copilot, Claude Code, Codex) mirroring native subagent conventions | active | 2026-05-05 |
 
 ## Conventions
 

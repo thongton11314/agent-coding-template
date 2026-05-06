@@ -2,7 +2,7 @@
 title: "Wiki Log"
 type: overview
 created: 2026-04-13
-updated: 2026-04-29
+updated: 2026-05-05
 tags: [log, changelog]
 sources: []
 status: active
@@ -33,3 +33,8 @@ Chronological record of all wiki operations. Append-only.
 - **Operation**: lint
 - **Pages touched**: [[registry]], [[rest]], [[api-design-patterns]], [[http-status-codes]], [[log]]
 - **Summary**: Second Workflow 8 health check found 2 remaining issues: placeholder dates in registry.md and `.md` extension in `sources:` frontmatter field of 3 concept pages. Both fixed.
+
+## [2026-05-05] update | Cross-Platform Agent Orchestration Parity
+- **Operation**: update
+- **Pages touched**: [[adr-001-cross-platform-agent-orchestration]], [[registry]], [[index]], [[log]]
+- **Summary**: Added agent-routing FIRST RULE to AGENTS.md (behavioral-mode switch for Codex/single-agent platforms). Rewrote CLAUDE.md to mirror copilot-instructions.md (delegates to subagents in `.claude/agents/`). Created `.claude/agents/agent-developer.md` and `.claude/agents/explore.md` as byte-identical ports of their `.github/agents/` counterparts. Updated `scripts/setup.ps1` and `scripts/setup.sh` to install the new files. Updated README.md "How to Integrate to Platform" for Claude Code (subagent files) and Codex (behavioral-mode model). Recorded ADR-001 documenting the per-platform routing decision. No system-behavior change.

@@ -38,6 +38,8 @@ DIRS=(
     ".github"
     ".github/agents"
     ".github/workflows"
+    ".claude"
+    ".claude/agents"
 )
 
 FILES=(
@@ -48,6 +50,8 @@ FILES=(
     ".github/agents/agent-developer.md"
     ".github/agents/explore.md"
     ".github/workflows/ci.yml"
+    ".claude/agents/agent-developer.md"
+    ".claude/agents/explore.md"
     "wiki/index.md"
     "wiki/log.md"
     "wiki/overview.md"

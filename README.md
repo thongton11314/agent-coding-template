@@ -116,15 +116,18 @@ Auto-detected via `.github/copilot-instructions.md` and custom agents in `.githu
 
 ### Claude (Claude Code)
 
-Auto-detected via `CLAUDE.md` in the project root.
+Auto-detected via `CLAUDE.md` in the project root, with subagents in `.claude/agents/`.
 
 **Files installed:**
-- `CLAUDE.md` — compact rules pointing to `AGENTS.md`
+- `CLAUDE.md` — routing rules (delegate to subagents) + post-change pipeline + core rules
+- `.claude/agents/agent-developer.md` — developer subagent with the post-change pipeline
+- `.claude/agents/explore.md` — read-only exploration subagent
 
 **How to use:**
 1. Install the framework (see Quick Start)
 2. Open the project with Claude Code
-3. Claude automatically loads `CLAUDE.md` and follows the workflows in `AGENTS.md`
+3. Claude Code automatically loads `CLAUDE.md` and discovers subagents in `.claude/agents/`
+4. Code-change requests delegate to the `agent-developer` subagent; read-only queries delegate to the `Explore` subagent — same triggers and pipeline as the VS Code Copilot path
 
 ### Codex (OpenAI)
 
@@ -137,6 +140,7 @@ Auto-detected via `AGENTS.md` in the project root.
 1. Install the framework (see Quick Start)
 2. Open the project with Codex
 3. Codex reads `AGENTS.md` as the primary instruction file
+4. Codex is single-agent — the `Agent Routing — FIRST RULE` at the top of `AGENTS.md` switches it between Developer Agent (full post-change pipeline) and Exploration Agent (read-only) behavior modes based on the request. Same triggers as the VS Code Copilot and Claude Code paths.
 
 ### Other Platforms
 

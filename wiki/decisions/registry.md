@@ -2,7 +2,7 @@
 title: "ADR Registry"
 type: decision
 created: 2026-04-13
-updated: 2026-04-29
+updated: 2026-05-05
 tags: [decisions, adr, registry]
 sources: []
 related: []
@@ -16,7 +16,7 @@ a new ADR is created to prevent number collisions.
 
 | Number | Title | Status | Date | Page |
 |--------|-------|--------|------|------|
-| *(no ADRs yet)* | | | | |
+| 001 | Cross-Platform Agent Orchestration | active | 2026-05-05 | [[adr-001-cross-platform-agent-orchestration]] |
 
 ---
 
