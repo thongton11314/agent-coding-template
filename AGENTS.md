@@ -119,6 +119,8 @@ src/                  # Application source code
   frontend/           # UI code (when the app has a user interface)
   backend/            # Server/API code (when the app has a server)
   cli/                # CLI scripts (when the app has no backend server)
+tests/                # Automated tests (created on demand alongside src/)
+config/               # Application/runtime configuration (created on demand)
 raw/                  # Immutable source documents (articles, papers, specs, data)
   assets/             # Downloaded images and attachments
 wiki/                 # AI-maintained pages — never edit manually
