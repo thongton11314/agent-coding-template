@@ -19,7 +19,7 @@ Triggers (non-exhaustive):
 - "update", "change", "modify", "edit" → any file in the codebase
 
 For **read-only exploration** — "what does X do?", "where is Y?", "find all Z",
-"show me W" — use the `Explore` agent.
+"show me W" — delegate to the `agent-explorer` subagent (`.github/agents/agent-explorer.md`).
 
 Only answer directly (without delegating) for pure conceptual questions that
 require no file access.

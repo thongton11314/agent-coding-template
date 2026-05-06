@@ -37,8 +37,8 @@ that require no file access.
 
 > **Platform mapping.** On platforms with native subagent systems (GitHub Copilot,
 > Claude Code), "operate as" means **delegate** to the corresponding subagent file
-> (`.github/agents/agent-developer.md` + `.github/agents/explore.md` for Copilot;
-> `.claude/agents/agent-developer.md` + `.claude/agents/explore.md` for Claude Code).
+> (`.github/agents/agent-developer.md` + `.github/agents/agent-explorer.md` for Copilot;
+> `.claude/agents/agent-developer.md` + `.claude/agents/agent-explorer.md` for Claude Code).
 > On single-agent platforms (Codex, or any tool that reads only this file), "operate
 > as" means **apply that agent's behavioral contract directly** — the same triggers,
 > the same Pre-Change Checklist, the same Post-Change Pipeline, the same read-only
@@ -64,7 +64,7 @@ This framework provides **persistent context** for AI-assisted development. It c
 ## Terminology
 
 - **Workflows** (1–11) — operational procedures for managing knowledge and code (ingest, query, lint, cleanup, etc.). Defined in this file.
-- **Skills** — modular capabilities the developer agent uses: plan, implement, test, wiki-sync, review, commit.
+- **Skills** — modular capabilities the developer agent uses: plan, implement, test, wiki-sync, review, clean, commit.
 - **Post-Change Pipeline** — the mandatory 5-step sequence (wiki → sync gate → tests → README → commit) that runs after every code change.
 - **Sync Gate** — Workflow 9: bidirectional code↔wiki verification with a Code-Wiki Mapping Table.
 - **Brownfield** — adoption of the framework on an already-running codebase (Workflow 11).
@@ -103,11 +103,11 @@ modifies files, runs commands, or updates the wiki.
 
 The two agents do not chain automatically. Routing is user-mediated:
 
-- **Explore** surfaces findings and gaps → the user decides whether to act.
-- **Developer agent** may invoke Explore as a subagent to gather context before
+- **`agent-explorer`** surfaces findings and gaps → the user decides whether to act.
+- **Developer agent** may invoke `agent-explorer` as a subagent to gather context before
   making changes (see Pre-Change Checklist: "if context is insufficient, invoke
-  Explore as a subagent before proceeding").
-- There is no automatic "Explore → Developer" pipeline. This is intentional —
+  `agent-explorer` as a subagent before proceeding").
+- There is no automatic "`agent-explorer` → Developer" pipeline. This is intentional —
   it prevents accidental mutations from read-only queries.
 
 ---

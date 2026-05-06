@@ -104,7 +104,7 @@ The framework is **platform-agnostic**. [`AGENTS.md`](AGENTS.md) is the single s
 
 | Platform | Root entry-point | Subagent directory | Dispatch model | Auto-detected? |
 |----------|------------------|--------------------|----------------|----------------|
-| **VS Code (GitHub Copilot)** | [.github/copilot-instructions.md](.github/copilot-instructions.md) | `.github/agents/` | Native subagents (`@agent-developer`, `@explore`) | Yes — on workspace open |
+| **VS Code (GitHub Copilot)** | [.github/copilot-instructions.md](.github/copilot-instructions.md) | `.github/agents/` | Native subagents (`@agent-developer`, `@agent-explorer`) | Yes — on workspace open |
 | **Claude Code** | [CLAUDE.md](CLAUDE.md) | `.claude/agents/` | Native subagents (Task tool / by name) | Yes — on session start |
 | **Codex (OpenAI CLI)** | [AGENTS.md](AGENTS.md) | *(none — single-agent)* | Behavioral-mode switch inlined in `AGENTS.md` | Yes — reads `AGENTS.md` at repo root |
 
@@ -133,13 +133,13 @@ The script is idempotent — files that already exist are skipped, so it's safe 
 **Files installed:**
 - [.github/copilot-instructions.md](.github/copilot-instructions.md) — loaded on every Copilot interaction; routes to subagents
 - `.github/agents/agent-developer.md` — developer subagent (full Post-Change Pipeline)
-- `.github/agents/explore.md` — read-only exploration subagent
+- `.github/agents/agent-explorer.md` — read-only exploration subagent
 
 **How to use:**
 1. Install the framework (see Quick Start or the install command above).
 2. Open the project in VS Code with GitHub Copilot enabled.
 3. Copilot auto-loads `.github/copilot-instructions.md` on workspace open.
-4. Use `@agent-developer` for any code/wiki change, `@explore` for read-only queries. Plain chat messages are also auto-routed by the rules in `copilot-instructions.md`.
+4. Use `@agent-developer` for any code/wiki change, `@agent-explorer` for read-only queries. Plain chat messages are also auto-routed by the rules in `copilot-instructions.md`.
 
 **Verify it's working:** ask Copilot Chat *"what is the post-change pipeline?"* — it should answer from `AGENTS.md` without searching the web.
 
@@ -150,13 +150,13 @@ The script is idempotent — files that already exist are skipped, so it's safe 
 **Files installed:**
 - [CLAUDE.md](CLAUDE.md) — root entry-point; delegates to `.claude/agents/`
 - `.claude/agents/agent-developer.md` — developer subagent (byte-identical mirror of `.github/agents/agent-developer.md`)
-- `.claude/agents/explore.md` — read-only exploration subagent
+- `.claude/agents/agent-explorer.md` — read-only exploration subagent
 
 **How to use:**
 1. Install the framework.
 2. Open the project with Claude Code (`claude` CLI or Claude Desktop project mode).
 3. Claude Code auto-loads `CLAUDE.md` and discovers subagents under `.claude/agents/`.
-4. Code-change requests delegate to `agent-developer`; read-only queries delegate to `Explore`. Invoke explicitly with *"use the agent-developer subagent to ..."* or via the Task tool.
+4. Code-change requests delegate to `agent-developer`; read-only queries delegate to `agent-explorer`. Invoke explicitly with *"use the agent-developer subagent to ..."* or via the Task tool.
 
 **Verify it's working:** ask *"which subagent handles bug fixes?"* — it should name `agent-developer` and cite the routing rules from `CLAUDE.md`.
 
@@ -185,7 +185,7 @@ Any AI tool that supports custom instructions can adopt this framework:
    ```
    Read AGENTS.md in full before every session. Apply its Agent Routing — FIRST RULE.
    ```
-2. If the tool supports subagents, mirror `.github/agents/agent-developer.md` and `.github/agents/explore.md` into the tool's expected directory.
+2. If the tool supports subagents, mirror `.github/agents/agent-developer.md` and `.github/agents/agent-explorer.md` into the tool's expected directory.
 3. If the tool is single-agent (like Codex), no extra files are needed — the routing rule inside `AGENTS.md` handles the mode switch.
 
 All workflows, conventions, and principles live in `AGENTS.md` — no platform-specific logic to port.

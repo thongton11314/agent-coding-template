@@ -9,9 +9,9 @@ related: [registry]
 source_paths:
   - .github/copilot-instructions.md
   - .github/agents/agent-developer.md
-  - .github/agents/explore.md
+  - .github/agents/agent-explorer.md
   - .claude/agents/agent-developer.md
-  - .claude/agents/explore.md
+  - .claude/agents/agent-explorer.md
   - CLAUDE.md
   - AGENTS.md
 status: active
@@ -83,8 +83,8 @@ That value is only realized if every platform sees the same routing semantics.
 - `.github/copilot-instructions.md` continues to own routing for VS Code Copilot
   (unchanged).
 - `CLAUDE.md` is rewritten to mirror `copilot-instructions.md` and delegate to
-  the `agent-developer` and `Explore` subagents in `.claude/agents/`.
-- `.claude/agents/agent-developer.md` and `.claude/agents/explore.md` are
+  the `agent-developer` and `agent-explorer` subagents in `.claude/agents/`.
+- `.claude/agents/agent-developer.md` and `.claude/agents/agent-explorer.md` are
   byte-equivalent ports of their `.github/agents/` counterparts.
 - `AGENTS.md` gains a top-of-file `## Agent Routing — FIRST RULE` section that
   expresses the routing as a single-agent behavioral-mode switch and explicitly
@@ -102,7 +102,7 @@ That value is only realized if every platform sees the same routing semantics.
   the same Post-Change Pipeline, and the same read-only guarantees for
   exploration. No platform silently degrades to a single-agent flow.
 - **Two copies of each subagent.** `.github/agents/agent-developer.md` and
-  `.claude/agents/agent-developer.md` (and the `explore.md` pair) must be kept
+  `.claude/agents/agent-developer.md` (and the `agent-explorer.md` pair) must be kept
   in sync. Drift risk is real but bounded — the files are short and only change
   when the framework's agent contracts change. A future Workflow could lint
   them; for now the pre-commit/validate-wiki hook covers wiki state, and these
